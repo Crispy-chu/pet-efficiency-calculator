@@ -745,6 +745,22 @@
       font-weight: 950;
     }
 
+    .modal-error {
+      min-height: 17px;
+      margin-top: 10px;
+      color: #b91c1c;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
     @media (max-width: 430px) {
       .content { padding: 14px 12px 22px; }
       .guide-main { font-size: 16px; }
@@ -835,11 +851,11 @@
           <div class="v" id="totalAttack">-</div>
           <div class="d" id="attackBreakdown">-</div>
         </div>
-        <div class="metric">
+        <button id="totalLevelMetric" class="metric metric-button" type="button">
           <div class="k">최종 펫 종합레벨</div>
           <div class="v" id="totalLevel">-</div>
           <div class="d" id="budgetText">-</div>
-        </div>
+        </button>
       </div>
 
       <section class="card">
@@ -939,6 +955,37 @@
         <div class="modal-section">
           <h3 id="effectFormulaTitle">계산식</h3>
           <div id="effectFormula" class="formula-box"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="totalLevelModal" class="modal-backdrop" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="totalLevelModalTitle">
+        <div class="modal-head text-only">
+          <div>
+            <div id="totalLevelModalTitle" class="modal-title">펫 종합레벨 목표</div>
+            <div class="modal-sub">현재 뼈다귀 안에서 목표 종합레벨로 재계산</div>
+          </div>
+          <button id="totalLevelModalClose" class="modal-close" type="button" aria-label="닫기">×</button>
+        </div>
+
+        <div class="modal-section" style="border-top:0;padding-top:0;margin-top:0;">
+          <h3>목표 입력</h3>
+          <div class="modal-calc">
+            <label>
+              <div class="label">현재 종합레벨</div>
+              <input id="currentTotalLevelView" type="number" readonly>
+            </label>
+            <label>
+              <div class="label">목표 종합레벨</div>
+              <input id="targetTotalLevelInput" type="number" min="1" placeholder="예: 480">
+            </label>
+          </div>
+          <div id="totalLevelTargetError" class="modal-error"></div>
+          <div class="modal-actions">
+            <button id="clearTotalLevelTarget" class="secondary" type="button">목표 해제</button>
+            <button id="applyTotalLevelTarget" class="primary" type="button">재계산</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1058,6 +1105,7 @@
     const EFFECT_ORDER = ["공격력", "치명타 확률", "치명타 피해", "단일 피해", "범위 피해", "물리 피해", "마법 피해", "60초마다 20초 동안 내 영웅의 최종 피해", "보스 몬스터 공격 시 피해", "일반 몬스터 처치 확률", "궁극기 피해", "기본 공격 피해", "마나 회복 속도", "몬스터 이동 속도 둔화", "이동 속도", "쿨타임 감소"];
     let latestEffectDetails = [];
     let latestResult = null;
+    let latestTargetTotalLevel = null;
 
     const $ = id => document.getElementById(id);
     const fmt = value => Number.isInteger(value) ? value.toLocaleString("ko-KR") : value.toLocaleString("ko-KR", { maximumFractionDigits: 1 });
@@ -1322,7 +1370,18 @@
       return activeSkillEntry(name, level)?.values || [];
     }
 
-    function optimize() {
+    function targetTotalLevelBounds() {
+      const input = readInputs();
+      return {
+        min: pets.length,
+        max: otherPets.length * MAX_LEVEL +
+          maxLevelByCopies("immortal", input.copies["포세이돈"]) +
+          maxLevelByCopies("immortal", input.copies["파티캣"]) +
+          maxLevelByCopies("mythic", input.copies["드라고"])
+      };
+    }
+
+    function optimize(options = {}) {
       const input = readInputs();
       const refund = refundBones(input.otherLevels);
       const budget = input.ownedBones + refund;
@@ -1330,6 +1389,7 @@
       const maxPoseidon = maxLevelByCopies("immortal", input.copies["포세이돈"]);
       const maxPartycat = maxLevelByCopies("immortal", input.copies["파티캣"]);
       const maxDrago = maxLevelByCopies("mythic", input.copies["드라고"]);
+      const targetTotalLevel = Number.isFinite(options.targetTotalLevel) ? Math.round(options.targetTotalLevel) : null;
 
       let best = null;
       for (let p = 1; p <= maxPoseidon; p++) {
@@ -1344,12 +1404,15 @@
             const coreLevels = { "포세이돈": p, "파티캣": c, "드라고": d };
             const baseTotalLevel = p + c + d + otherPets.length;
             const remaining = budget - coreCost;
-            const supportCounts = new Set([0]);
-            TOTAL_REWARDS
-              .filter(([, name]) => EXPECTED_REWARD_EFFECTS.has(name))
-              .forEach(([level]) => supportCounts.add(Math.max(0, level - baseTotalLevel)));
+            const supportCounts = targetTotalLevel == null ? new Set([0]) : new Set([targetTotalLevel - baseTotalLevel]);
+            if (targetTotalLevel == null) {
+              TOTAL_REWARDS
+                .filter(([, name]) => EXPECTED_REWARD_EFFECTS.has(name))
+                .forEach(([level]) => supportCounts.add(Math.max(0, level - baseTotalLevel)));
+            }
 
             supportCounts.forEach(count => {
+              if (count < 0) return;
               if (count >= supportPrefix.length) return;
               const support = supportPrefix[count];
               if (support.cost > remaining) return;
@@ -1368,6 +1431,7 @@
                 remaining: budget - spent,
                 refund,
                 budget,
+                targetTotalLevel,
                 coreLevels,
                 supportLevels: support.levels
               };
@@ -1629,6 +1693,58 @@
       modal.setAttribute("aria-hidden", "true");
     }
 
+    function openTotalLevelModal() {
+      if (!latestResult) return;
+      const bounds = targetTotalLevelBounds();
+      const modal = $("totalLevelModal");
+      const input = $("targetTotalLevelInput");
+      $("currentTotalLevelView").value = latestResult.totalLevel;
+      input.min = bounds.min;
+      input.max = bounds.max;
+      input.value = latestTargetTotalLevel ?? latestResult.totalLevel;
+      $("totalLevelTargetError").textContent = "";
+      modal.classList.add("open");
+      modal.setAttribute("aria-hidden", "false");
+      setTimeout(() => {
+        input.focus();
+        input.select();
+      }, 0);
+    }
+
+    function closeTotalLevelModal() {
+      const modal = $("totalLevelModal");
+      modal.classList.remove("open");
+      modal.setAttribute("aria-hidden", "true");
+    }
+
+    function applyTotalLevelTarget() {
+      const input = $("targetTotalLevelInput");
+      const bounds = targetTotalLevelBounds();
+      const target = Math.round(Number(input.value));
+      if (!Number.isFinite(target)) {
+        $("totalLevelTargetError").textContent = "목표 종합레벨을 입력하세요.";
+        return;
+      }
+      if (target < bounds.min || target > bounds.max) {
+        $("totalLevelTargetError").textContent = `입력 가능 범위는 ${fmt(bounds.min)}~${fmt(bounds.max)}입니다.`;
+        return;
+      }
+      const result = optimize({ targetTotalLevel: target });
+      if (!result) {
+        $("totalLevelTargetError").textContent = `현재 뼈다귀와 보유 마리수로 ${fmt(target)}레벨을 맞출 수 없습니다.`;
+        return;
+      }
+      latestTargetTotalLevel = target;
+      renderResult(result);
+      closeTotalLevelModal();
+    }
+
+    function clearTotalLevelTarget() {
+      latestTargetTotalLevel = null;
+      renderResult(optimize());
+      closeTotalLevelModal();
+    }
+
     function expectedItem(title, value, formula) {
       return `
         <div class="expected-item">
@@ -1777,7 +1893,8 @@
       $("totalAttack").textContent = `+${fmt(result.totalAttack)}%`;
       $("attackBreakdown").textContent = `장착 +${fmt(result.coreAttack)}% · 종합 +${fmt(result.rewardAttack)}%`;
       $("totalLevel").textContent = fmt(result.totalLevel);
-      $("budgetText").textContent = `전체 ${fmt(result.budget)}개 · 사용 ${fmt(result.spent)}개 · 남음 ${fmt(result.remaining)}개`;
+      const targetText = result.targetTotalLevel == null ? "" : `목표 ${fmt(result.targetTotalLevel)} · `;
+      $("budgetText").textContent = `${targetText}전체 ${fmt(result.budget)}개 · 사용 ${fmt(result.spent)}개 · 남음 ${fmt(result.remaining)}개`;
 
       $("coreRecommendations").innerHTML = CORE.map(name => {
         const pet = petByName[name];
@@ -1829,11 +1946,13 @@
     bindLevelLimits();
     bindZeroDefaults();
     $("calculate").addEventListener("click", () => {
+      latestTargetTotalLevel = null;
       renderResult(optimize());
       showPage("resultPage");
     });
     $("back").addEventListener("click", () => showPage("inputPage"));
     $("expectedDamageMetric").addEventListener("click", openExpectedDamageModal);
+    $("totalLevelMetric").addEventListener("click", openTotalLevelModal);
     $("reset")?.addEventListener("click", resetInputs);
     document.addEventListener("click", event => {
       const effectCard = event.target.closest(".effect-card");
@@ -1848,6 +1967,7 @@
       if (event.key === "Escape") {
         closePetModal();
         closeEffectModal();
+        closeTotalLevelModal();
       }
       if ((event.key === "Enter" || event.key === " ") && event.target.closest(".effect-card")) {
         event.preventDefault();
@@ -1866,6 +1986,15 @@
     $("effectModalClose").addEventListener("click", closeEffectModal);
     $("effectModal").addEventListener("click", event => {
       if (event.target.id === "effectModal") closeEffectModal();
+    });
+    $("totalLevelModalClose").addEventListener("click", closeTotalLevelModal);
+    $("totalLevelModal").addEventListener("click", event => {
+      if (event.target.id === "totalLevelModal") closeTotalLevelModal();
+    });
+    $("applyTotalLevelTarget").addEventListener("click", applyTotalLevelTarget);
+    $("clearTotalLevelTarget").addEventListener("click", clearTotalLevelTarget);
+    $("targetTotalLevelInput").addEventListener("keydown", event => {
+      if (event.key === "Enter") applyTotalLevelTarget();
     });
     $("modalCurrentLevel").addEventListener("input", updatePetModalCalc);
     $("modalTargetLevel").addEventListener("input", updatePetModalCalc);
