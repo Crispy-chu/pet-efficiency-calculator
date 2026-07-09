@@ -38,6 +38,11 @@
       cursor: pointer;
     }
 
+    button:disabled {
+      cursor: not-allowed;
+      opacity: .48;
+    }
+
     .app {
       width: min(100%, 480px);
       min-height: 100vh;
@@ -56,6 +61,26 @@
 
     .hero {
       padding: 8px 8px 14px;
+    }
+
+    .home-hero {
+      position: relative;
+      padding-right: 86px;
+    }
+
+    .preset-open {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      height: 30px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: #edf3ff;
+      color: #0f55e8;
+      border: 1px solid #c9d9ff;
+      font-size: 12px;
+      font-weight: 900;
+      box-shadow: 0 3px 8px rgba(23, 105, 255, .1);
     }
 
     h1 {
@@ -761,6 +786,21 @@
       margin-top: 12px;
     }
 
+    .preset-actions {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .preset-actions .primary,
+    .preset-actions .secondary {
+      height: 44px;
+      font-size: 14px;
+      border-radius: 7px;
+      box-shadow: none;
+    }
+
     @media (max-width: 430px) {
       .content { padding: 14px 12px 22px; }
       .guide-main { font-size: 16px; }
@@ -788,9 +828,10 @@
   <main class="app">
     <section id="inputPage" class="page active">
       <div class="content">
-        <div class="hero">
+        <div class="hero home-hero">
           <h1>펫 효율 계산기</h1>
           <div class="subtitle">종합레벨과 뼈다귀 효율 계산</div>
+          <button id="presetOpen" class="preset-open" type="button">프리셋</button>
         </div>
 
         <section class="card guide">
@@ -989,6 +1030,29 @@
         </div>
       </div>
     </div>
+
+    <div id="presetModal" class="modal-backdrop" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="presetModalTitle">
+        <div class="modal-head text-only">
+          <div>
+            <div id="presetModalTitle" class="modal-title">내 프리셋</div>
+            <div class="modal-sub">현재 입력값 저장 / 불러오기</div>
+          </div>
+          <button id="presetModalClose" class="modal-close" type="button" aria-label="닫기">×</button>
+        </div>
+
+        <div class="modal-section" style="border-top:0;padding-top:0;margin-top:0;">
+          <h3>저장 상태</h3>
+          <div id="presetStatus" class="modal-note"></div>
+          <div id="presetError" class="modal-error"></div>
+          <div class="preset-actions">
+            <button id="savePreset" class="primary" type="button">저장</button>
+            <button id="loadPreset" class="secondary" type="button">불러오기</button>
+            <button id="deletePreset" class="secondary" type="button">삭제</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 
   <script>
@@ -1103,6 +1167,7 @@
     const DIRECT_DAMAGE_EFFECTS = ["단일 피해", "범위 피해", "물리 피해", "마법 피해"];
     const EXPECTED_REWARD_EFFECTS = new Set(["공격력", "치명타 확률", "치명타 피해", "단일 피해", "범위 피해", "물리 피해", "마법 피해", "보스 몬스터 공격 시 피해"]);
     const EFFECT_ORDER = ["공격력", "치명타 확률", "치명타 피해", "단일 피해", "범위 피해", "물리 피해", "마법 피해", "60초마다 20초 동안 내 영웅의 최종 피해", "보스 몬스터 공격 시 피해", "일반 몬스터 처치 확률", "궁극기 피해", "기본 공격 피해", "마나 회복 속도", "몬스터 이동 속도 둔화", "이동 속도", "쿨타임 감소"];
+    const PRESET_KEY = "petEfficiencyCalculatorPresetV1";
     let latestEffectDetails = [];
     let latestResult = null;
     let latestTargetTotalLevel = null;
@@ -1151,6 +1216,124 @@
 
     function bindZeroDefaults(root = document) {
       root.querySelectorAll(".zero-default").forEach(bindZeroDefault);
+    }
+
+    function getSavedPreset() {
+      try {
+        const raw = localStorage.getItem(PRESET_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function savedAtText(value) {
+      if (!value) return "-";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "-";
+      return date.toLocaleString("ko-KR", {
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function collectPreset() {
+      const otherLevels = {};
+      document.querySelectorAll(".other-level").forEach(input => {
+        otherLevels[input.dataset.pet] = input.value || "";
+      });
+      return {
+        version: 1,
+        savedAt: new Date().toISOString(),
+        ownedBones: $("ownedBones").value || "0",
+        copies: {
+          "포세이돈": $("poseidonCopies").value || "0",
+          "파티캣": $("partycatCopies").value || "0",
+          "드라고": $("dragoCopies").value || "0"
+        },
+        otherLevels
+      };
+    }
+
+    function setLevelInputValue(input, value) {
+      if (!input) return;
+      if (value === "" || value == null) {
+        input.value = "";
+        input.dataset.lastValid = "";
+        return;
+      }
+      const level = clamp(Number(value) || 1, 1, MAX_LEVEL);
+      input.value = level;
+      input.dataset.lastValid = String(level);
+    }
+
+    function applyPresetData(preset) {
+      $("ownedBones").value = preset.ownedBones ?? "0";
+      $("poseidonCopies").value = preset.copies?.["포세이돈"] ?? "0";
+      $("partycatCopies").value = preset.copies?.["파티캣"] ?? "0";
+      $("dragoCopies").value = preset.copies?.["드라고"] ?? "0";
+      document.querySelectorAll(".other-level").forEach(input => {
+        setLevelInputValue(input, preset.otherLevels?.[input.dataset.pet] ?? "");
+      });
+      document.querySelectorAll(".batch-level").forEach(input => {
+        input.value = "";
+        input.dataset.lastValid = "";
+      });
+      latestTargetTotalLevel = null;
+    }
+
+    function updatePresetStatus(message = "", isError = false) {
+      const preset = getSavedPreset();
+      $("presetStatus").textContent = preset
+        ? `저장됨: ${savedAtText(preset.savedAt)}`
+        : "저장된 프리셋이 없습니다.";
+      $("presetError").textContent = message;
+      $("presetError").style.color = isError ? "#b91c1c" : "#0f766e";
+      $("loadPreset").disabled = !preset;
+      $("deletePreset").disabled = !preset;
+    }
+
+    function openPresetModal() {
+      updatePresetStatus();
+      const modal = $("presetModal");
+      modal.classList.add("open");
+      modal.setAttribute("aria-hidden", "false");
+    }
+
+    function closePresetModal() {
+      const modal = $("presetModal");
+      modal.classList.remove("open");
+      modal.setAttribute("aria-hidden", "true");
+    }
+
+    function savePreset() {
+      try {
+        localStorage.setItem(PRESET_KEY, JSON.stringify(collectPreset()));
+        updatePresetStatus("현재 입력값을 저장했습니다.");
+      } catch {
+        updatePresetStatus("브라우저 저장소에 저장하지 못했습니다.", true);
+      }
+    }
+
+    function loadPreset() {
+      const preset = getSavedPreset();
+      if (!preset) {
+        updatePresetStatus("불러올 프리셋이 없습니다.", true);
+        return;
+      }
+      applyPresetData(preset);
+      closePresetModal();
+    }
+
+    function deletePreset() {
+      try {
+        localStorage.removeItem(PRESET_KEY);
+        updatePresetStatus("프리셋을 삭제했습니다.");
+      } catch {
+        updatePresetStatus("프리셋을 삭제하지 못했습니다.", true);
+      }
     }
 
     function showPage(id) {
@@ -1951,6 +2134,7 @@
       showPage("resultPage");
     });
     $("back").addEventListener("click", () => showPage("inputPage"));
+    $("presetOpen").addEventListener("click", openPresetModal);
     $("expectedDamageMetric").addEventListener("click", openExpectedDamageModal);
     $("totalLevelMetric").addEventListener("click", openTotalLevelModal);
     $("reset")?.addEventListener("click", resetInputs);
@@ -1968,6 +2152,7 @@
         closePetModal();
         closeEffectModal();
         closeTotalLevelModal();
+        closePresetModal();
       }
       if ((event.key === "Enter" || event.key === " ") && event.target.closest(".effect-card")) {
         event.preventDefault();
@@ -1996,6 +2181,13 @@
     $("targetTotalLevelInput").addEventListener("keydown", event => {
       if (event.key === "Enter") applyTotalLevelTarget();
     });
+    $("presetModalClose").addEventListener("click", closePresetModal);
+    $("presetModal").addEventListener("click", event => {
+      if (event.target.id === "presetModal") closePresetModal();
+    });
+    $("savePreset").addEventListener("click", savePreset);
+    $("loadPreset").addEventListener("click", loadPreset);
+    $("deletePreset").addEventListener("click", deletePreset);
     $("modalCurrentLevel").addEventListener("input", updatePetModalCalc);
     $("modalTargetLevel").addEventListener("input", updatePetModalCalc);
   </script>
