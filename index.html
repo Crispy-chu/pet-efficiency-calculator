@@ -786,19 +786,67 @@
       margin-top: 12px;
     }
 
-    .preset-actions {
+    .preset-save {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: 1fr 72px;
       gap: 8px;
-      margin-top: 12px;
+      margin-top: 10px;
     }
 
-    .preset-actions .primary,
-    .preset-actions .secondary {
-      height: 44px;
+    .preset-save .primary {
+      height: 38px;
       font-size: 14px;
       border-radius: 7px;
       box-shadow: none;
+    }
+
+    .preset-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .preset-item {
+      padding: 10px;
+      border: 1px solid #e1e7ef;
+      border-radius: 8px;
+      background: #f8fafc;
+    }
+
+    .preset-item-main {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .preset-item-main strong {
+      min-width: 0;
+      color: #111827;
+      font-size: 14px;
+      font-weight: 950;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .preset-item-main span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .preset-item-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .preset-item-actions .secondary {
+      height: 32px;
+      font-size: 13px;
     }
 
     @media (max-width: 430px) {
@@ -1042,14 +1090,18 @@
         </div>
 
         <div class="modal-section" style="border-top:0;padding-top:0;margin-top:0;">
-          <h3>저장 상태</h3>
-          <div id="presetStatus" class="modal-note"></div>
-          <div id="presetError" class="modal-error"></div>
-          <div class="preset-actions">
+          <h3>새 프리셋 저장</h3>
+          <div class="preset-save">
+            <input id="presetNameInput" type="text" maxlength="16" placeholder="프리셋 이름">
             <button id="savePreset" class="primary" type="button">저장</button>
-            <button id="loadPreset" class="secondary" type="button">불러오기</button>
-            <button id="deletePreset" class="secondary" type="button">삭제</button>
           </div>
+          <div id="presetError" class="modal-error"></div>
+        </div>
+
+        <div class="modal-section">
+          <h3>저장된 프리셋</h3>
+          <div id="presetStatus" class="modal-note"></div>
+          <div id="presetList" class="preset-list"></div>
         </div>
       </div>
     </div>
@@ -1167,7 +1219,9 @@
     const DIRECT_DAMAGE_EFFECTS = ["단일 피해", "범위 피해", "물리 피해", "마법 피해"];
     const EXPECTED_REWARD_EFFECTS = new Set(["공격력", "치명타 확률", "치명타 피해", "단일 피해", "범위 피해", "물리 피해", "마법 피해", "보스 몬스터 공격 시 피해"]);
     const EFFECT_ORDER = ["공격력", "치명타 확률", "치명타 피해", "단일 피해", "범위 피해", "물리 피해", "마법 피해", "60초마다 20초 동안 내 영웅의 최종 피해", "보스 몬스터 공격 시 피해", "일반 몬스터 처치 확률", "궁극기 피해", "기본 공격 피해", "마나 회복 속도", "몬스터 이동 속도 둔화", "이동 속도", "쿨타임 감소"];
-    const PRESET_KEY = "petEfficiencyCalculatorPresetV1";
+    const LEGACY_PRESET_KEY = "petEfficiencyCalculatorPresetV1";
+    const PRESET_LIST_KEY = "petEfficiencyCalculatorPresetsV2";
+    const MAX_PRESETS = 10;
     let latestEffectDetails = [];
     let latestResult = null;
     let latestTargetTotalLevel = null;
@@ -1218,15 +1272,6 @@
       root.querySelectorAll(".zero-default").forEach(bindZeroDefault);
     }
 
-    function getSavedPreset() {
-      try {
-        const raw = localStorage.getItem(PRESET_KEY);
-        return raw ? JSON.parse(raw) : null;
-      } catch {
-        return null;
-      }
-    }
-
     function savedAtText(value) {
       if (!value) return "-";
       const date = new Date(value);
@@ -1239,14 +1284,56 @@
       });
     }
 
-    function collectPreset() {
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#39;"
+      }[char]));
+    }
+
+    function normalizePresetName(value) {
+      return String(value || "").trim().replace(/\s+/g, " ").slice(0, 16);
+    }
+
+    function getPresetList() {
+      try {
+        const raw = localStorage.getItem(PRESET_LIST_KEY);
+        const list = raw ? JSON.parse(raw) : null;
+        if (Array.isArray(list)) return list.filter(item => item && item.id && item.name && item.data);
+      } catch {
+        return [];
+      }
+
+      try {
+        const legacyRaw = localStorage.getItem(LEGACY_PRESET_KEY);
+        if (!legacyRaw) return [];
+        const legacy = JSON.parse(legacyRaw);
+        return [{
+          id: "legacy",
+          name: "내 프리셋",
+          savedAt: legacy.savedAt || new Date().toISOString(),
+          data: legacy
+        }];
+      } catch {
+        return [];
+      }
+    }
+
+    function savePresetList(list) {
+      localStorage.setItem(PRESET_LIST_KEY, JSON.stringify(list));
+      localStorage.removeItem(LEGACY_PRESET_KEY);
+    }
+
+    function collectPresetData() {
       const otherLevels = {};
       document.querySelectorAll(".other-level").forEach(input => {
         otherLevels[input.dataset.pet] = input.value || "";
       });
       return {
         version: 1,
-        savedAt: new Date().toISOString(),
         ownedBones: $("ownedBones").value || "0",
         copies: {
           "포세이돈": $("poseidonCopies").value || "0",
@@ -1284,22 +1371,40 @@
       latestTargetTotalLevel = null;
     }
 
+    function renderPresetList(list) {
+      $("presetList").innerHTML = list.length
+        ? list.map(item => `
+          <div class="preset-item">
+            <div class="preset-item-main">
+              <strong>${escapeHtml(item.name)}</strong>
+              <span>${savedAtText(item.savedAt)}</span>
+            </div>
+            <div class="preset-item-actions">
+              <button class="secondary" type="button" data-action="load" data-preset-id="${escapeHtml(item.id)}">불러오기</button>
+              <button class="secondary" type="button" data-action="delete" data-preset-id="${escapeHtml(item.id)}">삭제</button>
+            </div>
+          </div>
+        `).join("")
+        : `<div class="empty">저장된 프리셋이 없습니다.</div>`;
+    }
+
     function updatePresetStatus(message = "", isError = false) {
-      const preset = getSavedPreset();
-      $("presetStatus").textContent = preset
-        ? `저장됨: ${savedAtText(preset.savedAt)}`
+      const list = getPresetList();
+      $("presetStatus").textContent = list.length
+        ? `${list.length}/${MAX_PRESETS}개 저장됨`
         : "저장된 프리셋이 없습니다.";
       $("presetError").textContent = message;
       $("presetError").style.color = isError ? "#b91c1c" : "#0f766e";
-      $("loadPreset").disabled = !preset;
-      $("deletePreset").disabled = !preset;
+      renderPresetList(list);
     }
 
     function openPresetModal() {
       updatePresetStatus();
+      $("presetNameInput").value = "";
       const modal = $("presetModal");
       modal.classList.add("open");
       modal.setAttribute("aria-hidden", "false");
+      setTimeout(() => $("presetNameInput").focus(), 0);
     }
 
     function closePresetModal() {
@@ -1309,28 +1414,51 @@
     }
 
     function savePreset() {
+      const name = normalizePresetName($("presetNameInput").value);
+      if (!name) {
+        updatePresetStatus("프리셋 이름을 입력하세요.", true);
+        return;
+      }
+
       try {
-        localStorage.setItem(PRESET_KEY, JSON.stringify(collectPreset()));
-        updatePresetStatus("현재 입력값을 저장했습니다.");
+        const list = getPresetList();
+        const existingIndex = list.findIndex(item => item.name === name);
+        if (existingIndex === -1 && list.length >= MAX_PRESETS) {
+          updatePresetStatus(`프리셋은 최대 ${MAX_PRESETS}개까지 저장할 수 있습니다.`, true);
+          return;
+        }
+        const item = {
+          id: existingIndex >= 0 ? list[existingIndex].id : `preset-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          name,
+          savedAt: new Date().toISOString(),
+          data: collectPresetData()
+        };
+        if (existingIndex >= 0) list[existingIndex] = item;
+        else list.unshift(item);
+        savePresetList(list);
+        $("presetNameInput").value = "";
+        updatePresetStatus(`"${name}" 저장 완료`);
       } catch {
         updatePresetStatus("브라우저 저장소에 저장하지 못했습니다.", true);
       }
     }
 
-    function loadPreset() {
-      const preset = getSavedPreset();
+    function loadPreset(id) {
+      const preset = getPresetList().find(item => item.id === id);
       if (!preset) {
-        updatePresetStatus("불러올 프리셋이 없습니다.", true);
+        updatePresetStatus("불러올 프리셋을 찾지 못했습니다.", true);
         return;
       }
-      applyPresetData(preset);
+      applyPresetData(preset.data);
       closePresetModal();
     }
 
-    function deletePreset() {
+    function deletePreset(id) {
       try {
-        localStorage.removeItem(PRESET_KEY);
-        updatePresetStatus("프리셋을 삭제했습니다.");
+        const list = getPresetList();
+        const target = list.find(item => item.id === id);
+        savePresetList(list.filter(item => item.id !== id));
+        updatePresetStatus(target ? `"${target.name}" 삭제 완료` : "프리셋을 삭제했습니다.");
       } catch {
         updatePresetStatus("프리셋을 삭제하지 못했습니다.", true);
       }
@@ -2186,8 +2314,15 @@
       if (event.target.id === "presetModal") closePresetModal();
     });
     $("savePreset").addEventListener("click", savePreset);
-    $("loadPreset").addEventListener("click", loadPreset);
-    $("deletePreset").addEventListener("click", deletePreset);
+    $("presetNameInput").addEventListener("keydown", event => {
+      if (event.key === "Enter") savePreset();
+    });
+    $("presetList").addEventListener("click", event => {
+      const button = event.target.closest("button[data-action][data-preset-id]");
+      if (!button) return;
+      if (button.dataset.action === "load") loadPreset(button.dataset.presetId);
+      if (button.dataset.action === "delete") deletePreset(button.dataset.presetId);
+    });
     $("modalCurrentLevel").addEventListener("input", updatePetModalCalc);
     $("modalTargetLevel").addEventListener("input", updatePetModalCalc);
   </script>
