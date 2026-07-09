@@ -926,7 +926,7 @@
     <section id="resultPage" class="page result-page">
       <header class="hero">
         <h1>추천 결과</h1>
-        <div class="subtitle">딜 기대값 기준 재분배</div>
+        <div class="subtitle">딜 우선 · 남은 뼈다귀 반영</div>
       </header>
 
       <div class="result-top">
@@ -1692,6 +1692,47 @@
       };
     }
 
+    function applyLeftoverRewardLevels(result, supportPrefix) {
+      if (!result || result.targetTotalLevel != null) return result;
+      const coreTotal = Object.values(result.coreLevels).reduce((sum, level) => sum + level, 0);
+      const baseTotalLevel = coreTotal + otherPets.length;
+      const currentSupportCount = result.totalLevel - baseTotalLevel;
+      const currentSupport = supportPrefix[currentSupportCount];
+      if (!currentSupport) return result;
+
+      let nextSupportCount = currentSupportCount;
+      TOTAL_REWARDS
+        .map(([level]) => level)
+        .filter(level => level > result.totalLevel)
+        .sort((a, b) => a - b)
+        .forEach(level => {
+          const neededCount = level - baseTotalLevel;
+          if (neededCount < currentSupportCount || neededCount >= supportPrefix.length) return;
+          const extraCost = supportPrefix[neededCount].cost - currentSupport.cost;
+          if (extraCost <= result.remaining) nextSupportCount = neededCount;
+        });
+
+      if (nextSupportCount === currentSupportCount) return result;
+      const support = supportPrefix[nextSupportCount];
+      const spent = result.spent + support.cost - currentSupport.cost;
+      const totalLevel = baseTotalLevel + nextSupportCount;
+      const stats = expectedStats(result.coreLevels, totalLevel);
+      return {
+        ...result,
+        totalAttack: stats.attackBonus,
+        coreAttack: stats.coreAttack,
+        rewardAttack: stats.rewardAttack,
+        expectedMultiplier: stats.expectedMultiplier,
+        expectedGain: stats.expectedGain,
+        expectedStats: stats,
+        totalLevel,
+        spent,
+        remaining: result.budget - spent,
+        supportLevels: support.levels,
+        leftoverRewardApplied: true
+      };
+    }
+
     function optimize(options = {}) {
       const input = readInputs();
       const refund = refundBones(input.otherLevels);
@@ -1759,7 +1800,7 @@
           }
         }
       }
-      return best;
+      return applyLeftoverRewardLevels(best, supportPrefix);
     }
 
     function addEffectDetail(map, name, value, source) {
