@@ -216,6 +216,92 @@
       font-size: 18px;
     }
 
+    .core-pet-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .core-pet-state {
+      min-width: 0;
+      padding: 9px 8px 10px;
+      border: 1px solid color-mix(in srgb, var(--rarity) 58%, #d9dee7);
+      border-top: 4px solid var(--rarity);
+      border-radius: 7px;
+      background: #fff;
+    }
+
+    .core-pet-head {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+      margin-bottom: 9px;
+    }
+
+    .core-pet-head img {
+      width: 43px;
+      height: 43px;
+      flex: 0 0 auto;
+      object-fit: contain;
+      border-radius: 6px;
+      background: color-mix(in srgb, var(--rarity) 9%, #fff);
+      border: 1px solid color-mix(in srgb, var(--rarity) 28%, #e5e7eb);
+    }
+
+    .core-pet-name {
+      min-width: 0;
+      font-size: 14px;
+      line-height: 1.15;
+      font-weight: 950;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .core-level-control {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: center;
+      gap: 4px;
+      color: #344054;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .core-level-control input,
+    .core-copy-progress input {
+      height: 34px;
+      min-width: 0;
+      padding: 0 6px;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    .core-copy-label {
+      margin: 8px 0 4px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.2;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .core-copy-progress {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .core-copy-need {
+      min-width: 28px;
+      color: #344054;
+      font-size: 14px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
     .rarity-row {
       display: grid;
       grid-template-columns: auto 1fr;
@@ -864,6 +950,12 @@
 
     @media (max-width: 360px) {
       .grid.three { grid-template-columns: 1fr; }
+      .core-pet-grid { gap: 6px; }
+      .core-pet-state { padding: 7px 6px 8px; }
+      .core-pet-head { display: block; text-align: center; }
+      .core-pet-head img { width: 39px; height: 39px; margin-bottom: 3px; }
+      .core-pet-name { font-size: 12px; }
+      .core-copy-label { font-size: 9px; }
       .result-top { grid-template-columns: 1fr; }
       .metric:first-child { grid-column: auto; }
       h1 { font-size: 24px; }
@@ -886,26 +978,41 @@
           <div class="info-icon">i</div>
           <div>
             <div class="guide-title">계산 전 안내</div>
-            <div class="guide-main">포세이돈 / 파티캣 / 드라고를 초기화해주세요.</div>
-            <div class="guide-sub">초기화 후 현재 펫 개수와 보유 뼈다귀를 입력하세요.</div>
+            <div class="guide-main">현재 펫 상태를 그대로 입력해주세요.</div>
+            <div class="guide-sub">세 펫의 현재 레벨과 보유 마리수, 현재 보유 뼈다귀를 입력하세요.</div>
           </div>
         </section>
 
         <section class="card">
-          <h2 class="section-title">펫 개수 입력</h2>
-          <div class="grid three">
-            <label>
-              <div class="label">포세이돈</div>
-              <input id="poseidonCopies" class="zero-default" type="number" min="0" value="0">
-            </label>
-            <label>
-              <div class="label">파티캣</div>
-              <input id="partycatCopies" class="zero-default" type="number" min="0" value="0">
-            </label>
-            <label>
-              <div class="label">드라고</div>
-              <input id="dragoCopies" class="zero-default" type="number" min="0" value="0">
-            </label>
+          <h2 class="section-title">장착 펫 현재 상태</h2>
+          <div class="core-pet-grid">
+            <div class="core-pet-state" style="--rarity:#A63226">
+              <div class="core-pet-head">
+                <img src="image/포세이돈.png" alt="포세이돈">
+                <div class="core-pet-name">포세이돈</div>
+              </div>
+              <label class="core-level-control"><span>Lv.</span><input id="poseidonLevel" class="level-input" type="number" min="1" max="48" value="1"></label>
+              <div class="core-copy-label">현재 보유 / 다음 필요</div>
+              <div class="core-copy-progress"><input id="poseidonCopies" class="zero-default" type="number" min="0" value="0"><span id="poseidonNeed" class="core-copy-need">/ 0</span></div>
+            </div>
+            <div class="core-pet-state" style="--rarity:#A63226">
+              <div class="core-pet-head">
+                <img src="image/파티캣.png" alt="파티캣">
+                <div class="core-pet-name">파티캣</div>
+              </div>
+              <label class="core-level-control"><span>Lv.</span><input id="partycatLevel" class="level-input" type="number" min="1" max="48" value="1"></label>
+              <div class="core-copy-label">현재 보유 / 다음 필요</div>
+              <div class="core-copy-progress"><input id="partycatCopies" class="zero-default" type="number" min="0" value="0"><span id="partycatNeed" class="core-copy-need">/ 0</span></div>
+            </div>
+            <div class="core-pet-state" style="--rarity:#B55A2D">
+              <div class="core-pet-head">
+                <img src="image/드라고.png" alt="드라고">
+                <div class="core-pet-name">드라고</div>
+              </div>
+              <label class="core-level-control"><span>Lv.</span><input id="dragoLevel" class="level-input" type="number" min="1" max="45" value="1"></label>
+              <div class="core-copy-label">현재 보유 / 다음 필요</div>
+              <div class="core-copy-progress"><input id="dragoCopies" class="zero-default" type="number" min="0" value="0"><span id="dragoNeed" class="core-copy-need">/ 0</span></div>
+            </div>
           </div>
         </section>
 
@@ -1129,6 +1236,11 @@
     ];
 
     const CORE = ["포세이돈", "파티캣", "드라고"];
+    const CORE_INPUTS = {
+      "포세이돈": { levelId: "poseidonLevel", copiesId: "poseidonCopies", needId: "poseidonNeed" },
+      "파티캣": { levelId: "partycatLevel", copiesId: "partycatCopies", needId: "partycatNeed" },
+      "드라고": { levelId: "dragoLevel", copiesId: "dragoCopies", needId: "dragoNeed" }
+    };
     const pets = RARITIES.flatMap(rarity => rarity.pets.map(name => ({
       name,
       rarity: rarity.id,
@@ -1246,7 +1358,9 @@
           return;
         }
         const value = Number(input.value);
-        if (!Number.isFinite(value) || value < 1 || value > MAX_LEVEL) {
+        const min = Number(input.min) || 1;
+        const max = Number(input.max) || MAX_LEVEL;
+        if (!Number.isFinite(value) || value < min || value > max) {
           input.value = input.dataset.lastValid || "";
           return;
         }
@@ -1333,8 +1447,9 @@
         otherLevels[input.dataset.pet] = input.value || "";
       });
       return {
-        version: 1,
+        version: 2,
         ownedBones: $("ownedBones").value || "0",
+        coreLevels: Object.fromEntries(CORE.map(name => [name, $(CORE_INPUTS[name].levelId).value || "1"])),
         copies: {
           "포세이돈": $("poseidonCopies").value || "0",
           "파티캣": $("partycatCopies").value || "0",
@@ -1351,13 +1466,18 @@
         input.dataset.lastValid = "";
         return;
       }
-      const level = clamp(Number(value) || 1, 1, MAX_LEVEL);
+      const level = clamp(Number(value) || 1, Number(input.min) || 1, Number(input.max) || MAX_LEVEL);
       input.value = level;
       input.dataset.lastValid = String(level);
     }
 
     function applyPresetData(preset) {
       $("ownedBones").value = preset.ownedBones ?? "0";
+      const hasCurrentState = Number(preset.version) >= 2 && preset.coreLevels;
+      CORE.forEach(name => {
+        const fields = CORE_INPUTS[name];
+        setLevelInputValue($(fields.levelId), hasCurrentState ? preset.coreLevels?.[name] : 1);
+      });
       $("poseidonCopies").value = preset.copies?.["포세이돈"] ?? "0";
       $("partycatCopies").value = preset.copies?.["파티캣"] ?? "0";
       $("dragoCopies").value = preset.copies?.["드라고"] ?? "0";
@@ -1368,6 +1488,7 @@
         input.value = "";
         input.dataset.lastValid = "";
       });
+      updateCorePetInputs();
       latestTargetTotalLevel = null;
     }
 
@@ -1477,6 +1598,26 @@
       let total = 0;
       for (let target = 2; target <= level; target++) total += levelUpCost(pet, target);
       return total;
+    }
+
+    function nextCopyRequirement(name, level) {
+      const table = COPY_CUM[petByName[name].rarity];
+      const current = table?.[level];
+      const next = table?.[level + 1];
+      if (current == null || next == null) return null;
+      return Math.max(0, next - current);
+    }
+
+    function updateCorePetInput(name) {
+      const fields = CORE_INPUTS[name];
+      const levelInput = $(fields.levelId);
+      const level = clamp(Number(levelInput.value) || 1, Number(levelInput.min) || 1, Number(levelInput.max) || MAX_LEVEL);
+      const need = nextCopyRequirement(name, level);
+      $(fields.needId).textContent = need == null ? "/ -" : `/ ${fmt(need)}`;
+    }
+
+    function updateCorePetInputs() {
+      CORE.forEach(updateCorePetInput);
     }
 
     function maxLevelByCopies(rarity, copies) {
@@ -1637,19 +1778,36 @@
         input.value = level;
         otherLevels[input.dataset.pet] = level;
       });
+      const currentCoreLevels = {};
+      const heldCopies = {};
+      const copies = {};
+      CORE.forEach(name => {
+        const fields = CORE_INPUTS[name];
+        const levelInput = $(fields.levelId);
+        const level = clamp(Number(levelInput.value) || 1, Number(levelInput.min) || 1, Number(levelInput.max) || MAX_LEVEL);
+        const held = Math.max(0, Number($(fields.copiesId).value) || 0);
+        const used = COPY_CUM[petByName[name].rarity]?.[level] ?? 0;
+        levelInput.value = level;
+        currentCoreLevels[name] = level;
+        heldCopies[name] = held;
+        copies[name] = used + held;
+        updateCorePetInput(name);
+      });
       return {
         ownedBones: Math.max(0, Number($("ownedBones").value) || 0),
-        copies: {
-          "포세이돈": Math.max(0, Number($("poseidonCopies").value) || 0),
-          "파티캣": Math.max(0, Number($("partycatCopies").value) || 0),
-          "드라고": Math.max(0, Number($("dragoCopies").value) || 0)
-        },
+        currentCoreLevels,
+        heldCopies,
+        copies,
         otherLevels
       };
     }
 
-    function refundBones(otherLevels) {
+    function refundOtherBones(otherLevels) {
       return Object.entries(otherLevels).reduce((sum, [name, level]) => sum + cumulativeBoneCost(petByName[name], level), 0);
+    }
+
+    function refundCoreBones(currentCoreLevels) {
+      return Object.entries(currentCoreLevels).reduce((sum, [name, level]) => sum + cumulativeBoneCost(petByName[name], level), 0);
     }
 
     function buildSupportPrefix() {
@@ -1735,7 +1893,9 @@
 
     function optimize(options = {}) {
       const input = readInputs();
-      const refund = refundBones(input.otherLevels);
+      const otherRefund = refundOtherBones(input.otherLevels);
+      const coreRefund = refundCoreBones(input.currentCoreLevels);
+      const refund = otherRefund + coreRefund;
       const budget = input.ownedBones + refund;
       const supportPrefix = buildSupportPrefix();
       const maxPoseidon = maxLevelByCopies("immortal", input.copies["포세이돈"]);
@@ -1782,6 +1942,8 @@
                 spent,
                 remaining: budget - spent,
                 refund,
+                otherRefund,
+                coreRefund,
                 budget,
                 targetTotalLevel,
                 coreLevels,
@@ -2291,12 +2453,19 @@
 
     function resetInputs() {
       ["ownedBones", "poseidonCopies", "partycatCopies", "dragoCopies"].forEach(id => $(id).value = 0);
+      CORE.forEach(name => {
+        const input = $(CORE_INPUTS[name].levelId);
+        input.value = 1;
+        input.dataset.lastValid = "1";
+      });
       document.querySelectorAll(".other-level").forEach(input => input.value = "");
+      updateCorePetInputs();
     }
 
     renderInputs();
     bindLevelLimits();
     bindZeroDefaults();
+    updateCorePetInputs();
     $("calculate").addEventListener("click", () => {
       latestTargetTotalLevel = null;
       renderResult(optimize());
@@ -2366,6 +2535,9 @@
     });
     $("modalCurrentLevel").addEventListener("input", updatePetModalCalc);
     $("modalTargetLevel").addEventListener("input", updatePetModalCalc);
+    CORE.forEach(name => {
+      $(CORE_INPUTS[name].levelId).addEventListener("input", () => updateCorePetInput(name));
+    });
   </script>
 </body>
 </html>
