@@ -218,13 +218,13 @@
 
     .core-pet-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 9px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
     }
 
     .core-pet-state {
       min-width: 0;
-      padding: 9px 8px 10px;
+      padding: 8px 6px 9px;
       border: 1px solid color-mix(in srgb, var(--rarity) 58%, #d9dee7);
       border-top: 4px solid var(--rarity);
       border-radius: 7px;
@@ -232,26 +232,25 @@
     }
 
     .core-pet-head {
-      display: flex;
-      align-items: center;
-      gap: 7px;
+      display: block;
       min-width: 0;
-      margin-bottom: 9px;
+      margin-bottom: 7px;
+      text-align: center;
     }
 
     .core-pet-head img {
-      width: 43px;
-      height: 43px;
-      flex: 0 0 auto;
+      width: 42px;
+      height: 42px;
       object-fit: contain;
       border-radius: 6px;
       background: color-mix(in srgb, var(--rarity) 9%, #fff);
       border: 1px solid color-mix(in srgb, var(--rarity) 28%, #e5e7eb);
+      margin-bottom: 3px;
     }
 
     .core-pet-name {
       min-width: 0;
-      font-size: 14px;
+      font-size: 13px;
       line-height: 1.15;
       font-weight: 950;
       overflow: hidden;
@@ -279,7 +278,7 @@
     }
 
     .core-copy-label {
-      margin: 8px 0 4px;
+      margin: 7px 0 4px;
       color: var(--muted);
       font-size: 10px;
       line-height: 1.2;
@@ -295,11 +294,22 @@
     }
 
     .core-copy-need {
-      min-width: 28px;
+      min-width: 23px;
       color: #344054;
       font-size: 14px;
       font-weight: 900;
       white-space: nowrap;
+    }
+
+    .core-pet-state input[type="number"] {
+      appearance: textfield;
+      -moz-appearance: textfield;
+    }
+
+    .core-pet-state input[type="number"]::-webkit-inner-spin-button,
+    .core-pet-state input[type="number"]::-webkit-outer-spin-button {
+      margin: 0;
+      -webkit-appearance: none;
     }
 
     .rarity-row {
@@ -486,9 +496,93 @@
       gap: 8px;
     }
 
-    #coreRecommendations,
-    #supportRecommendations {
+    .build-pet-grid,
+    .build-support-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .build-comparisons {
+      display: grid;
+      gap: 18px;
+    }
+
+    .build-plan + .build-plan {
+      padding-top: 18px;
+      border-top: 1px solid #dfe4ec;
+    }
+
+    .build-plan-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .build-plan-title {
+      color: #101828;
+      font-size: 17px;
+      line-height: 1.25;
+      font-weight: 950;
+    }
+
+    .build-plan-subtitle {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.35;
+      font-weight: 700;
+    }
+
+    .build-best-badge {
+      flex: 0 0 auto;
+      padding: 5px 8px;
+      border-radius: 5px;
+      background: var(--blue);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .build-summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      margin-bottom: 12px;
+      padding: 9px;
+      border-radius: 6px;
+      background: #f3f6fb;
+    }
+
+    .build-summary span {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.25;
+      font-weight: 750;
+    }
+
+    .build-summary strong {
+      display: block;
+      margin-top: 3px;
+      color: #101828;
+      font-size: 14px;
+      line-height: 1.2;
+      font-weight: 950;
+    }
+
+    .build-section-label {
+      margin: 12px 0 7px;
+      color: #344054;
+      font-size: 12px;
+      line-height: 1.3;
+      font-weight: 900;
+    }
+
+    .build-section-label span {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 650;
     }
 
     .result-row,
@@ -950,12 +1044,14 @@
 
     @media (max-width: 360px) {
       .grid.three { grid-template-columns: 1fr; }
-      .core-pet-grid { gap: 6px; }
-      .core-pet-state { padding: 7px 6px 8px; }
-      .core-pet-head { display: block; text-align: center; }
-      .core-pet-head img { width: 39px; height: 39px; margin-bottom: 3px; }
+      .core-pet-grid { gap: 4px; }
+      .core-pet-state { padding: 7px 4px 8px; }
+      .core-pet-head img { width: 38px; height: 38px; }
       .core-pet-name { font-size: 12px; }
       .core-copy-label { font-size: 9px; }
+      .core-level-control input,
+      .core-copy-progress input { padding: 0 3px; font-size: 14px; }
+      .core-copy-need { min-width: 20px; font-size: 12px; }
       .result-top { grid-template-columns: 1fr; }
       .metric:first-child { grid-column: auto; }
       h1 { font-size: 24px; }
@@ -979,12 +1075,12 @@
           <div>
             <div class="guide-title">계산 전 안내</div>
             <div class="guide-main">현재 펫 상태를 그대로 입력해주세요.</div>
-            <div class="guide-sub">세 펫의 현재 레벨과 보유 마리수, 현재 보유 뼈다귀를 입력하세요.</div>
+            <div class="guide-sub">네 펫의 현재 레벨과 보유 마리수, 현재 보유 뼈다귀를 입력하세요.</div>
           </div>
         </section>
 
         <section class="card">
-          <h2 class="section-title">장착 펫 현재 상태</h2>
+          <h2 class="section-title">펫 현재 상태</h2>
           <div class="core-pet-grid">
             <div class="core-pet-state" style="--rarity:#A63226">
               <div class="core-pet-head">
@@ -993,7 +1089,7 @@
               </div>
               <label class="core-level-control"><span>Lv.</span><input id="poseidonLevel" class="level-input" type="number" min="1" max="48" value="1"></label>
               <div class="core-copy-label">현재 보유 / 다음 필요</div>
-              <div class="core-copy-progress"><input id="poseidonCopies" class="zero-default" type="number" min="0" value="0"><span id="poseidonNeed" class="core-copy-need">/ 0</span></div>
+              <div class="core-copy-progress"><input id="poseidonCopies" class="zero-default" type="number" min="0" value="0"><span id="poseidonNeed" class="core-copy-need">/ -</span></div>
             </div>
             <div class="core-pet-state" style="--rarity:#A63226">
               <div class="core-pet-head">
@@ -1002,7 +1098,16 @@
               </div>
               <label class="core-level-control"><span>Lv.</span><input id="partycatLevel" class="level-input" type="number" min="1" max="48" value="1"></label>
               <div class="core-copy-label">현재 보유 / 다음 필요</div>
-              <div class="core-copy-progress"><input id="partycatCopies" class="zero-default" type="number" min="0" value="0"><span id="partycatNeed" class="core-copy-need">/ 0</span></div>
+              <div class="core-copy-progress"><input id="partycatCopies" class="zero-default" type="number" min="0" value="0"><span id="partycatNeed" class="core-copy-need">/ -</span></div>
+            </div>
+            <div class="core-pet-state" style="--rarity:#A63226">
+              <div class="core-pet-head">
+                <img src="image/불덩이.png" alt="불덩이">
+                <div class="core-pet-name">불덩이</div>
+              </div>
+              <label class="core-level-control"><span>Lv.</span><input id="fireballLevel" class="level-input" type="number" min="1" max="48" value="1"></label>
+              <div class="core-copy-label">현재 보유 / 다음 필요</div>
+              <div class="core-copy-progress"><input id="fireballCopies" class="zero-default" type="number" min="0" value="0"><span id="fireballNeed" class="core-copy-need">/ -</span></div>
             </div>
             <div class="core-pet-state" style="--rarity:#B55A2D">
               <div class="core-pet-head">
@@ -1011,7 +1116,7 @@
               </div>
               <label class="core-level-control"><span>Lv.</span><input id="dragoLevel" class="level-input" type="number" min="1" max="45" value="1"></label>
               <div class="core-copy-label">현재 보유 / 다음 필요</div>
-              <div class="core-copy-progress"><input id="dragoCopies" class="zero-default" type="number" min="0" value="0"><span id="dragoNeed" class="core-copy-need">/ 0</span></div>
+              <div class="core-copy-progress"><input id="dragoCopies" class="zero-default" type="number" min="0" value="0"><span id="dragoNeed" class="core-copy-need">/ -</span></div>
             </div>
           </div>
         </section>
@@ -1055,13 +1160,8 @@
       </div>
 
       <section class="card">
-        <h2 class="section-title">장착 펫 추천</h2>
-        <div id="coreRecommendations" class="result-list"></div>
-      </section>
-
-      <section class="card">
-        <h2 class="section-title">종합레벨용 추천</h2>
-        <div id="supportRecommendations" class="result-list"></div>
+        <h2 class="section-title">조합별 최적화 비교</h2>
+        <div id="buildComparisons" class="build-comparisons"></div>
       </section>
 
       <section class="card">
@@ -1227,7 +1327,7 @@
     };
 
     const RARITIES = [
-      { id: "immortal", name: "불멸", color: "#A63226", multi: 6, pets: ["포세이돈", "파티캣"] },
+      { id: "immortal", name: "불멸", color: "#A63226", multi: 6, pets: ["포세이돈", "파티캣", "불덩이"] },
       { id: "mythic", name: "신화", color: "#B55A2D", multi: 5, pets: ["드라고", "고래킹", "우루루", "유령부기"] },
       { id: "legendary", name: "전설", color: "#DBA132", multi: 4, pets: ["샐러맨더", "늠름", "밍숭숭", "새우쿤", "산고기"] },
       { id: "hero", name: "영웅", color: "#6F3793", multi: 3, pets: ["스티키", "투구", "풀고기", "앤소니", "볼피쉬"] },
@@ -1235,10 +1335,14 @@
       { id: "normal", name: "일반", color: "#B1A689", multi: 1, pets: ["단세포", "칠리", "싹고기", "집게", "쭈꾸", "조랭이"] }
     ];
 
-    const CORE = ["포세이돈", "파티캣", "드라고"];
+    const CORE = ["포세이돈", "파티캣", "불덩이", "드라고"];
+    const FIXED_EQUIPPED = ["포세이돈", "파티캣"];
+    const THIRD_SLOT_CANDIDATES = ["불덩이", "드라고"];
+    const FIREBALL_TIMED_CRIT = "50초마다 공격력이 가장 높은 3명의 영웅에게 15초 동안 치명타 확률";
     const CORE_INPUTS = {
       "포세이돈": { levelId: "poseidonLevel", copiesId: "poseidonCopies", needId: "poseidonNeed" },
       "파티캣": { levelId: "partycatLevel", copiesId: "partycatCopies", needId: "partycatNeed" },
+      "불덩이": { levelId: "fireballLevel", copiesId: "fireballCopies", needId: "fireballNeed" },
       "드라고": { levelId: "dragoLevel", copiesId: "dragoCopies", needId: "dragoNeed" }
     };
     const pets = RARITIES.flatMap(rarity => rarity.pets.map(name => ({
@@ -1295,19 +1399,33 @@
         [1, [["일반 몬스터 처치 확률", 15], ["보스 몬스터 공격 시 피해", 10]]],
         [10, [["일반 몬스터 처치 확률", 15], ["보스 몬스터 공격 시 피해", 15]]],
         [20, [["일반 몬스터 처치 확률", 20], ["보스 몬스터 공격 시 피해", 15]]],
-        [30, [["일반 몬스터 처치 확률", 20], ["보스 몬스터 공격 시 피해", 20]]]
+        [30, [["일반 몬스터 처치 확률", 20], ["보스 몬스터 공격 시 피해", 20]]],
+        [40, [["일반 몬스터 처치 확률", 25], ["보스 몬스터 공격 시 피해", 20]]],
+        [50, [["일반 몬스터 처치 확률", 30], ["보스 몬스터 공격 시 피해", 20]]]
       ],
       "파티캣": [
         [1, [["60초마다 20초 동안 내 영웅의 최종 피해", 15], ["치명타 피해", 10]]],
         [10, [["60초마다 20초 동안 내 영웅의 최종 피해", 15], ["치명타 피해", 15]]],
         [20, [["60초마다 20초 동안 내 영웅의 최종 피해", 20], ["치명타 피해", 15]]],
-        [30, [["60초마다 20초 동안 내 영웅의 최종 피해", 20], ["치명타 피해", 20]]]
+        [30, [["60초마다 20초 동안 내 영웅의 최종 피해", 20], ["치명타 피해", 20]]],
+        [40, [["60초마다 20초 동안 내 영웅의 최종 피해", 25], ["치명타 피해", 20]]],
+        [50, [["60초마다 20초 동안 내 영웅의 최종 피해", 30], ["치명타 피해", 20]]]
+      ],
+      "불덩이": [
+        [1, [[FIREBALL_TIMED_CRIT, 5], ["치명타 확률", 5]]],
+        [10, [[FIREBALL_TIMED_CRIT, 5], ["치명타 확률", 7.5]]],
+        [20, [[FIREBALL_TIMED_CRIT, 7.5], ["치명타 확률", 7.5]]],
+        [30, [[FIREBALL_TIMED_CRIT, 7.5], ["치명타 확률", 10]]],
+        [40, [[FIREBALL_TIMED_CRIT, 10], ["치명타 확률", 10]]],
+        [50, [[FIREBALL_TIMED_CRIT, 12.5], ["치명타 확률", 10]]]
       ],
       "드라고": [
         [1, [["치명타 확률", 2.5]]],
         [10, [["치명타 확률", 4]]],
         [20, [["치명타 확률", 5.5]]],
-        [30, [["치명타 확률", 7]]]
+        [30, [["치명타 확률", 7]]],
+        [40, [["치명타 확률", 8.5]]],
+        [50, [["치명타 확률", 10]]]
       ]
     };
 
@@ -1326,11 +1444,11 @@
       critDamageLabel: "기본 치명타 피해"
     };
     const EXCLUDED_EFFECTS = new Set(["펫 슬롯"]);
-    const SPECIAL_EFFECTS = new Set(["60초마다 20초 동안 내 영웅의 최종 피해", "보스 몬스터 공격 시 피해", "일반 몬스터 처치 확률"]);
+    const SPECIAL_EFFECTS = new Set(["60초마다 20초 동안 내 영웅의 최종 피해", FIREBALL_TIMED_CRIT, "보스 몬스터 공격 시 피해", "일반 몬스터 처치 확률"]);
     const UTILITY_EFFECTS = new Set(["기본 공격 피해", "궁극기 피해", "마나 회복 속도", "몬스터 이동 속도 둔화", "이동 속도", "쿨타임 감소"]);
     const DIRECT_DAMAGE_EFFECTS = ["단일 피해", "범위 피해", "물리 피해", "마법 피해"];
     const EXPECTED_REWARD_EFFECTS = new Set(["공격력", "치명타 확률", "치명타 피해", "단일 피해", "범위 피해", "물리 피해", "마법 피해", "보스 몬스터 공격 시 피해"]);
-    const EFFECT_ORDER = ["공격력", "치명타 확률", "치명타 피해", "단일 피해", "범위 피해", "물리 피해", "마법 피해", "60초마다 20초 동안 내 영웅의 최종 피해", "보스 몬스터 공격 시 피해", "일반 몬스터 처치 확률", "궁극기 피해", "기본 공격 피해", "마나 회복 속도", "몬스터 이동 속도 둔화", "이동 속도", "쿨타임 감소"];
+    const EFFECT_ORDER = ["공격력", "치명타 확률", "치명타 피해", "단일 피해", "범위 피해", "물리 피해", "마법 피해", "60초마다 20초 동안 내 영웅의 최종 피해", FIREBALL_TIMED_CRIT, "보스 몬스터 공격 시 피해", "일반 몬스터 처치 확률", "궁극기 피해", "기본 공격 피해", "마나 회복 속도", "몬스터 이동 속도 둔화", "이동 속도", "쿨타임 감소"];
     const LEGACY_PRESET_KEY = "petEfficiencyCalculatorPresetV1";
     const PRESET_LIST_KEY = "petEfficiencyCalculatorPresetsV2";
     const MAX_PRESETS = 10;
@@ -1447,14 +1565,10 @@
         otherLevels[input.dataset.pet] = input.value || "";
       });
       return {
-        version: 2,
+        version: 3,
         ownedBones: $("ownedBones").value || "0",
         coreLevels: Object.fromEntries(CORE.map(name => [name, $(CORE_INPUTS[name].levelId).value || "1"])),
-        copies: {
-          "포세이돈": $("poseidonCopies").value || "0",
-          "파티캣": $("partycatCopies").value || "0",
-          "드라고": $("dragoCopies").value || "0"
-        },
+        copies: Object.fromEntries(CORE.map(name => [name, $(CORE_INPUTS[name].copiesId).value || "0"])),
         otherLevels
       };
     }
@@ -1476,11 +1590,9 @@
       const hasCurrentState = Number(preset.version) >= 2 && preset.coreLevels;
       CORE.forEach(name => {
         const fields = CORE_INPUTS[name];
-        setLevelInputValue($(fields.levelId), hasCurrentState ? preset.coreLevels?.[name] : 1);
+        setLevelInputValue($(fields.levelId), hasCurrentState ? (preset.coreLevels?.[name] ?? 1) : 1);
+        $(fields.copiesId).value = preset.copies?.[name] ?? "0";
       });
-      $("poseidonCopies").value = preset.copies?.["포세이돈"] ?? "0";
-      $("partycatCopies").value = preset.copies?.["파티캣"] ?? "0";
-      $("dragoCopies").value = preset.copies?.["드라고"] ?? "0";
       document.querySelectorAll(".other-level").forEach(input => {
         setLevelInputValue(input, preset.otherLevels?.[input.dataset.pet] ?? "");
       });
@@ -1613,7 +1725,7 @@
       const levelInput = $(fields.levelId);
       const level = clamp(Number(levelInput.value) || 1, Number(levelInput.min) || 1, Number(levelInput.max) || MAX_LEVEL);
       const need = nextCopyRequirement(name, level);
-      $(fields.needId).textContent = need == null ? "/ -" : `/ ${fmt(need)}`;
+      $(fields.needId).textContent = need == null || need === 0 ? "/ -" : `/ ${fmt(need)}`;
     }
 
     function updateCorePetInputs() {
@@ -1629,12 +1741,14 @@
       return level;
     }
 
+    function petAttackValue(name, level) {
+      if (name === "드라고") return 5 + (level - 1) * 0.5;
+      if (["포세이돈", "파티캣", "불덩이"].includes(name)) return 10 + (level - 1);
+      return 0;
+    }
+
     function equippedAttack(levels) {
-      return {
-        "포세이돈": 10 + (levels["포세이돈"] - 1),
-        "파티캣": 10 + (levels["파티캣"] - 1),
-        "드라고": 5 + (levels["드라고"] - 1) * 0.5
-      };
+      return Object.fromEntries(Object.entries(levels).map(([name, level]) => [name, petAttackValue(name, level)]));
     }
 
     function attackReward(totalLevel) {
@@ -1645,6 +1759,22 @@
       return TOTAL_REWARDS
         .filter(([level, name]) => totalLevel >= level && name === stat)
         .reduce((sum, [, , value]) => sum + value, 0);
+    }
+
+    const COMBAT_REWARD_CACHE = new Map();
+    function combatRewards(totalLevel) {
+      if (COMBAT_REWARD_CACHE.has(totalLevel)) return COMBAT_REWARD_CACHE.get(totalLevel);
+      const directDamageParts = Object.fromEntries(DIRECT_DAMAGE_EFFECTS.map(stat => [stat, totalRewardValue(totalLevel, stat)]));
+      const reward = {
+        attack: attackReward(totalLevel),
+        critChance: totalRewardValue(totalLevel, "치명타 확률"),
+        critDamage: totalRewardValue(totalLevel, "치명타 피해"),
+        bossDamage: totalRewardValue(totalLevel, "보스 몬스터 공격 시 피해"),
+        directDamageParts,
+        directDamageSum: DIRECT_DAMAGE_EFFECTS.reduce((sum, stat) => sum + directDamageParts[stat], 0)
+      };
+      COMBAT_REWARD_CACHE.set(totalLevel, reward);
+      return reward;
     }
 
     function skillValue(name, level, stat) {
@@ -1662,21 +1792,74 @@
       return (100 + DAMAGE_BASELINE.externalBossDamage) / 100;
     }
 
+    const PET_COMBAT_CACHE = new Map();
+    function petCombatValues(name, level) {
+      const key = `${name}:${level}`;
+      if (PET_COMBAT_CACHE.has(key)) return PET_COMBAT_CACHE.get(key);
+      const values = {
+        attack: petAttackValue(name, level),
+        critChance: skillValue(name, level, "치명타 확률"),
+        timedCrit: skillValue(name, level, FIREBALL_TIMED_CRIT) * (15 / 50),
+        critDamage: skillValue(name, level, "치명타 피해"),
+        partyFinal: skillValue(name, level, "60초마다 20초 동안 내 영웅의 최종 피해") * (20 / 60),
+        bossDamage: skillValue(name, level, "보스 몬스터 공격 시 피해")
+      };
+      PET_COMBAT_CACHE.set(key, values);
+      return values;
+    }
+
+    function combineCombat(left, right) {
+      return {
+        attack: left.attack + right.attack,
+        critChance: left.critChance + right.critChance,
+        timedCrit: left.timedCrit + right.timedCrit,
+        critDamage: left.critDamage + right.critDamage,
+        partyFinal: left.partyFinal + right.partyFinal,
+        bossDamage: left.bossDamage + right.bossDamage
+      };
+    }
+
+    function expectedScoreFromCombat(core, totalLevel) {
+      const rewards = combatRewards(totalLevel);
+      const attackBonus = core.attack + rewards.attack;
+      const expectedMultiplier =
+        ((100 + DAMAGE_BASELINE.externalAttack + attackBonus) / 100) *
+        critExpected(DAMAGE_BASELINE.externalCritChance + rewards.critChance + core.critChance + core.timedCrit, DAMAGE_BASELINE.baseCritDamage + rewards.critDamage + core.critDamage) *
+        ((100 + rewards.directDamageSum / DIRECT_DAMAGE_EFFECTS.length) / 100) *
+        ((100 + core.partyFinal) / 100) *
+        ((100 + DAMAGE_BASELINE.externalBossDamage + rewards.bossDamage + core.bossDamage) / 100);
+      return { expectedMultiplier, attackBonus };
+    }
+
+    function expectedScore(coreLevels, totalLevel) {
+      const core = Object.entries(coreLevels)
+        .map(([name, level]) => petCombatValues(name, level))
+        .reduce(combineCombat);
+      return expectedScoreFromCombat(core, totalLevel);
+    }
+
     function expectedStats(coreLevels, totalLevel) {
+      const rewards = combatRewards(totalLevel);
       const coreAttack = Object.values(equippedAttack(coreLevels)).reduce((sum, value) => sum + value, 0);
-      const rewardAttack = attackReward(totalLevel);
+      const rewardAttack = rewards.attack;
       const attackBonus = coreAttack + rewardAttack;
       const attackTotal = DAMAGE_BASELINE.externalAttack + attackBonus;
-      const critChanceBonus = totalRewardValue(totalLevel, "치명타 확률") + skillValue("드라고", coreLevels["드라고"], "치명타 확률");
+      const passiveCritChanceBonus = rewards.critChance +
+        Object.entries(coreLevels).reduce((sum, [name, level]) => sum + skillValue(name, level, "치명타 확률"), 0);
+      const fireballTimedCritChance = coreLevels["불덩이"] == null ? 0 : skillValue("불덩이", coreLevels["불덩이"], FIREBALL_TIMED_CRIT);
+      const fireballAverageCritChance = fireballTimedCritChance * (15 / 50);
+      const critChanceBonus = passiveCritChanceBonus + fireballAverageCritChance;
       const critChanceTotal = DAMAGE_BASELINE.externalCritChance + critChanceBonus;
-      const critDamageBonus = totalRewardValue(totalLevel, "치명타 피해") + skillValue("파티캣", coreLevels["파티캣"], "치명타 피해");
+      const critDamageBonus = rewards.critDamage +
+        Object.entries(coreLevels).reduce((sum, [name, level]) => sum + skillValue(name, level, "치명타 피해"), 0);
       const critDamageTotal = DAMAGE_BASELINE.baseCritDamage + critDamageBonus;
-      const directDamageParts = Object.fromEntries(DIRECT_DAMAGE_EFFECTS.map(stat => [stat, totalRewardValue(totalLevel, stat)]));
-      const directDamageSum = DIRECT_DAMAGE_EFFECTS.reduce((sum, stat) => sum + directDamageParts[stat], 0);
+      const directDamageParts = rewards.directDamageParts;
+      const directDamageSum = rewards.directDamageSum;
       const directDamage = directDamageSum / DIRECT_DAMAGE_EFFECTS.length;
-      const partycatFinal = skillValue("파티캣", coreLevels["파티캣"], "60초마다 20초 동안 내 영웅의 최종 피해");
+      const partycatFinal = coreLevels["파티캣"] == null ? 0 : skillValue("파티캣", coreLevels["파티캣"], "60초마다 20초 동안 내 영웅의 최종 피해");
       const partycatAverageFinal = partycatFinal * (20 / 60);
-      const bossDamageBonus = totalRewardValue(totalLevel, "보스 몬스터 공격 시 피해") + skillValue("포세이돈", coreLevels["포세이돈"], "보스 몬스터 공격 시 피해");
+      const bossDamageBonus = rewards.bossDamage +
+        Object.entries(coreLevels).reduce((sum, [name, level]) => sum + skillValue(name, level, "보스 몬스터 공격 시 피해"), 0);
       const bossDamageTotal = DAMAGE_BASELINE.externalBossDamage + bossDamageBonus;
       const attackMultiplier = (100 + attackTotal) / 100;
       const critMultiplier = critExpected(critChanceTotal, critDamageTotal);
@@ -1697,6 +1880,9 @@
         rewardAttack,
         attackBonus,
         attackTotal,
+        passiveCritChanceBonus,
+        fireballTimedCritChance,
+        fireballAverageCritChance,
         critChanceBonus,
         critChanceTotal,
         critDamageBonus,
@@ -1810,13 +1996,15 @@
       return Object.entries(currentCoreLevels).reduce((sum, [name, level]) => sum + cumulativeBoneCost(petByName[name], level), 0);
     }
 
-    function buildSupportPrefix() {
+    function buildSupportPrefix(limitedSupport = null) {
+      const supportPets = limitedSupport ? [...otherPets, petByName[limitedSupport.name]] : [...otherPets];
       const increments = [];
-      otherPets.forEach(pet => {
-        for (let target = 2; target <= MAX_LEVEL; target++) increments.push({ pet: pet.name, cost: levelUpCost(pet, target) });
+      supportPets.forEach(pet => {
+        const maxLevel = limitedSupport?.name === pet.name ? limitedSupport.maxLevel : MAX_LEVEL;
+        for (let target = 2; target <= maxLevel; target++) increments.push({ pet: pet.name, cost: levelUpCost(pet, target) });
       });
       increments.sort((a, b) => a.cost - b.cost || petByName[a.pet].multi - petByName[b.pet].multi);
-      const levels = Object.fromEntries(otherPets.map(pet => [pet.name, 1]));
+      const levels = Object.fromEntries(supportPets.map(pet => [pet.name, 1]));
       const prefix = [{ cost: 0, levels: { ...levels } }];
       let cost = 0;
       increments.forEach(increment => {
@@ -1843,17 +2031,16 @@
       const input = readInputs();
       return {
         min: pets.length,
-        max: otherPets.length * MAX_LEVEL +
-          maxLevelByCopies("immortal", input.copies["포세이돈"]) +
-          maxLevelByCopies("immortal", input.copies["파티캣"]) +
-          maxLevelByCopies("mythic", input.copies["드라고"])
+        max: otherPets.length * MAX_LEVEL + CORE.reduce((sum, name) => {
+          return sum + maxLevelByCopies(petByName[name].rarity, input.copies[name]);
+        }, 0)
       };
     }
 
     function applyLeftoverRewardLevels(result, supportPrefix) {
       if (!result || result.targetTotalLevel != null) return result;
       const coreTotal = Object.values(result.coreLevels).reduce((sum, level) => sum + level, 0);
-      const baseTotalLevel = coreTotal + otherPets.length;
+      const baseTotalLevel = coreTotal + Object.keys(result.supportLevels).length;
       const currentSupportCount = result.totalLevel - baseTotalLevel;
       const currentSupport = supportPrefix[currentSupportCount];
       if (!currentSupport) return result;
@@ -1887,34 +2074,46 @@
         spent,
         remaining: result.budget - spent,
         supportLevels: support.levels,
+        mainLevels: { ...result.mainLevels, [result.unequippedPet]: support.levels[result.unequippedPet] },
         leftoverRewardApplied: true
       };
     }
 
-    function optimize(options = {}) {
-      const input = readInputs();
-      const otherRefund = refundOtherBones(input.otherLevels);
-      const coreRefund = refundCoreBones(input.currentCoreLevels);
-      const refund = otherRefund + coreRefund;
-      const budget = input.ownedBones + refund;
-      const supportPrefix = buildSupportPrefix();
-      const maxPoseidon = maxLevelByCopies("immortal", input.copies["포세이돈"]);
-      const maxPartycat = maxLevelByCopies("immortal", input.copies["파티캣"]);
-      const maxDrago = maxLevelByCopies("mythic", input.copies["드라고"]);
-      const targetTotalLevel = Number.isFinite(options.targetTotalLevel) ? Math.round(options.targetTotalLevel) : null;
+    function isBetterCandidate(candidate, best) {
+      if (!candidate) return false;
+      if (!best) return true;
+      const betterExpected = candidate.expectedMultiplier > best.expectedMultiplier + 1e-9;
+      const tiedExpected = Math.abs(candidate.expectedMultiplier - best.expectedMultiplier) <= 1e-9;
+      return betterExpected ||
+        (tiedExpected && candidate.spent < best.spent) ||
+        (tiedExpected && candidate.spent === best.spent && candidate.totalLevel > best.totalLevel) ||
+        (tiedExpected && candidate.spent === best.spent && candidate.totalLevel === best.totalLevel && candidate.totalAttack > best.totalAttack);
+    }
 
+    function optimizeThirdSlot(thirdSlot, input, budget, refundInfo, targetTotalLevel) {
+      const unequippedPet = THIRD_SLOT_CANDIDATES.find(name => name !== thirdSlot);
+      const maxLevels = Object.fromEntries(CORE.map(name => [
+        name,
+        maxLevelByCopies(petByName[name].rarity, input.copies[name])
+      ]));
+      const supportPrefix = buildSupportPrefix({ name: unequippedPet, maxLevel: maxLevels[unequippedPet] });
+      const supportPetCount = Object.keys(supportPrefix[0].levels).length;
       let best = null;
-      for (let p = 1; p <= maxPoseidon; p++) {
+
+      for (let p = 1; p <= maxLevels["포세이돈"]; p++) {
         const pCost = cumulativeBoneCost(petByName["포세이돈"], p);
         if (pCost > budget) break;
-        for (let c = 1; c <= maxPartycat; c++) {
+        const pCombat = petCombatValues("포세이돈", p);
+        for (let c = 1; c <= maxLevels["파티캣"]; c++) {
           const pcCost = pCost + cumulativeBoneCost(petByName["파티캣"], c);
           if (pcCost > budget) break;
-          for (let d = 1; d <= maxDrago; d++) {
-            const coreCost = pcCost + cumulativeBoneCost(petByName["드라고"], d);
+          const pcCombat = combineCombat(pCombat, petCombatValues("파티캣", c));
+          for (let t = 1; t <= maxLevels[thirdSlot]; t++) {
+            const coreCost = pcCost + cumulativeBoneCost(petByName[thirdSlot], t);
             if (coreCost > budget) break;
-            const coreLevels = { "포세이돈": p, "파티캣": c, "드라고": d };
-            const baseTotalLevel = p + c + d + otherPets.length;
+            const coreLevels = { "포세이돈": p, "파티캣": c, [thirdSlot]: t };
+            const coreCombat = combineCombat(pcCombat, petCombatValues(thirdSlot, t));
+            const baseTotalLevel = p + c + t + supportPetCount;
             const remaining = budget - coreCost;
             const supportCounts = targetTotalLevel == null ? new Set([0]) : new Set([targetTotalLevel - baseTotalLevel]);
             if (targetTotalLevel == null) {
@@ -1924,13 +2123,26 @@
             }
 
             supportCounts.forEach(count => {
-              if (count < 0) return;
-              if (count >= supportPrefix.length) return;
+              if (count < 0 || count >= supportPrefix.length) return;
               const support = supportPrefix[count];
               if (support.cost > remaining) return;
               const totalLevel = baseTotalLevel + count;
-              const stats = expectedStats(coreLevels, totalLevel);
               const spent = coreCost + support.cost;
+              const score = expectedScoreFromCombat(coreCombat, totalLevel);
+              const lightCandidate = {
+                expectedMultiplier: score.expectedMultiplier,
+                totalAttack: score.attackBonus,
+                totalLevel,
+                spent
+              };
+              if (!isBetterCandidate(lightCandidate, best)) return;
+              const stats = expectedStats(coreLevels, totalLevel);
+              const mainLevels = {
+                "포세이돈": p,
+                "파티캣": c,
+                [thirdSlot]: t,
+                [unequippedPet]: support.levels[unequippedPet]
+              };
               const candidate = {
                 totalAttack: stats.attackBonus,
                 coreAttack: stats.coreAttack,
@@ -1941,28 +2153,39 @@
                 totalLevel,
                 spent,
                 remaining: budget - spent,
-                refund,
-                otherRefund,
-                coreRefund,
+                ...refundInfo,
                 budget,
                 targetTotalLevel,
                 coreLevels,
+                mainLevels,
+                equippedPets: [...FIXED_EQUIPPED, thirdSlot],
+                thirdSlot,
+                unequippedPet,
                 supportLevels: support.levels
               };
-              const betterExpected = !best || candidate.expectedMultiplier > best.expectedMultiplier + 1e-9;
-              const tiedExpected = best && Math.abs(candidate.expectedMultiplier - best.expectedMultiplier) <= 1e-9;
-              if (!best ||
-                betterExpected ||
-                (tiedExpected && candidate.spent < best.spent) ||
-                (tiedExpected && candidate.spent === best.spent && candidate.totalLevel > best.totalLevel) ||
-                (tiedExpected && candidate.spent === best.spent && candidate.totalLevel === best.totalLevel && candidate.totalAttack > best.totalAttack)) {
-                best = candidate;
-              }
+              best = candidate;
             });
           }
         }
       }
       return applyLeftoverRewardLevels(best, supportPrefix);
+    }
+
+    function optimize(options = {}) {
+      const input = readInputs();
+      const otherRefund = refundOtherBones(input.otherLevels);
+      const coreRefund = refundCoreBones(input.currentCoreLevels);
+      const refund = otherRefund + coreRefund;
+      const budget = input.ownedBones + refund;
+      const targetTotalLevel = Number.isFinite(options.targetTotalLevel) ? Math.round(options.targetTotalLevel) : null;
+      const refundInfo = { refund, otherRefund, coreRefund };
+      const alternatives = THIRD_SLOT_CANDIDATES
+        .map(name => optimizeThirdSlot(name, input, budget, refundInfo, targetTotalLevel))
+        .filter(Boolean);
+      const best = alternatives.reduce((current, candidate) => isBetterCandidate(candidate, current) ? candidate : current, null);
+      if (!best) return null;
+      best.thirdSlotAlternatives = alternatives.map(alternative => ({ ...alternative }));
+      return best;
     }
 
     function addEffectDetail(map, name, value, source) {
@@ -1992,7 +2215,7 @@
       TOTAL_REWARDS.filter(([level]) => result.totalLevel >= level).forEach(([level, name, value]) => {
         addEffectDetail(effects, name, value, `펫 종합레벨 ${level}`);
       });
-      CORE.forEach(name => {
+      result.equippedPets.forEach(name => {
         const entry = activeSkillEntry(name, result.coreLevels[name]);
         if (!entry) return;
         entry.values.forEach(([stat, value]) => addEffectDetail(effects, stat, value, `${name} Lv.${entry.threshold} 스킬`));
@@ -2022,7 +2245,8 @@
       const value = detail.total;
       const petAttack = detailTotal(details, "공격력");
       const currentAttack = DAMAGE_BASELINE.externalAttack + petAttack;
-      const currentCritRate = DAMAGE_BASELINE.externalCritChance + detailTotal(details, "치명타 확률");
+      const fireballAverageCrit = detailTotal(details, FIREBALL_TIMED_CRIT) * (15 / 50);
+      const currentCritRate = DAMAGE_BASELINE.externalCritChance + detailTotal(details, "치명타 확률") + fireballAverageCrit;
       const currentCritDamage = DAMAGE_BASELINE.baseCritDamage + detailTotal(details, "치명타 피해");
       const currentBossBonus = detailTotal(details, "보스 몬스터 공격 시 피해");
       const currentBossDamage = DAMAGE_BASELINE.externalBossDamage + currentBossBonus;
@@ -2070,6 +2294,19 @@
           description: "파티캣 불멸펫 스킬입니다. 60초마다 20초 동안만 적용되므로 활성 중 효과와 단순 시간 평균 효과를 따로 봐야 합니다.",
           rows: [["버프 활성 중", `+${fmt(value)}%`], ["60초 단순 평균", fmtGain(average)]],
           formula: `활성 중: (100 + ${fmt(value)}) / 100 - 1 = +${fmt(value)}%\n단순 시간 평균: ${fmt(value)}% × 20 / 60 = ${fmtGain(average)}`
+        };
+      }
+
+      if (name === FIREBALL_TIMED_CRIT) {
+        const average = value * (15 / 50);
+        const passiveRate = currentCritRate - average;
+        const before = critExpected(passiveRate, currentCritDamage);
+        const after = critExpected(currentCritRate, currentCritDamage);
+        const gain = percentGain(after, before);
+        return {
+          description: "불덩이 불멸펫 스킬입니다. 공격력 상위 3명이 주요 딜을 담당한다고 보고 50초마다 15초의 가동률을 치명타 기대값에 반영합니다.",
+          rows: [["버프 활성 중", `+${fmt(value)}%`], ["시간 평균 치명타 확률", `+${fmt(average)}%`], ["딜 기대값", fmtGain(gain)]],
+          formula: `${fmt(value)}% × 15초 / 50초 = 평균 치명타 확률 +${fmt(average)}%\n치명타 기대값: ${fmt2(after)} / ${fmt2(before)} - 1 = ${fmtGain(gain)}`
         };
       }
 
@@ -2136,9 +2373,7 @@
     }
 
     function levelAttackEffect(name, level) {
-      if (name === "포세이돈" || name === "파티캣") return 10 + (level - 1);
-      if (name === "드라고") return 5 + (level - 1) * 0.5;
-      return null;
+      return CORE.includes(name) ? petAttackValue(name, level) : null;
     }
 
     function petEffects(name, level) {
@@ -2296,7 +2531,7 @@
         expectedItem(
           "치명타 확률 딜 기대값",
           fmtGain(stats.critChanceGain),
-          `치명타 확률 = 밤바인형 ${fmt(DAMAGE_BASELINE.externalCritChance)}% + 드라고/펫종합 ${fmt(stats.critChanceBonus)}% = ${fmt(stats.critChanceTotal)}%\n치명타 피해 = 기본 ${fmt(DAMAGE_BASELINE.baseCritDamage)}% + 파티캣/펫종합 ${fmt(stats.critDamageBonus)}% = ${fmt(stats.critDamageTotal)}%\n기존: 1 + ${fmt2(DAMAGE_BASELINE.externalCritChance / 100)} × (${fmt2(stats.critDamageTotal / 100)} - 1) = ${fmt2(critChanceBefore)}\n변경: 1 + ${fmt2(stats.critChanceTotal / 100)} × (${fmt2(stats.critDamageTotal / 100)} - 1) = ${fmt2(critChanceAfter)}\n${fmt2(critChanceAfter)} / ${fmt2(critChanceBefore)} - 1 = ${fmtGain(stats.critChanceGain)}`
+          `치명타 확률 = 밤바인형 ${fmt(DAMAGE_BASELINE.externalCritChance)}% + 장착펫/펫종합 상시 ${fmt(stats.passiveCritChanceBonus)}% + 불덩이 시간평균 ${fmt(stats.fireballAverageCritChance)}% = ${fmt(stats.critChanceTotal)}%\n치명타 피해 = 기본 ${fmt(DAMAGE_BASELINE.baseCritDamage)}% + 파티캣/펫종합 ${fmt(stats.critDamageBonus)}% = ${fmt(stats.critDamageTotal)}%\n기존: 1 + ${fmt2(DAMAGE_BASELINE.externalCritChance / 100)} × (${fmt2(stats.critDamageTotal / 100)} - 1) = ${fmt2(critChanceBefore)}\n변경: 1 + ${fmt2(stats.critChanceTotal / 100)} × (${fmt2(stats.critDamageTotal / 100)} - 1) = ${fmt2(critChanceAfter)}\n${fmt2(critChanceAfter)} / ${fmt2(critChanceBefore)} - 1 = ${fmtGain(stats.critChanceGain)}`
         ),
         expectedItem(
           "치명타 피해 딜 기대값",
@@ -2319,7 +2554,7 @@
           `대검 ${fmt(DAMAGE_BASELINE.greatswordBossDamage)}% + 길드 만렙 버프 ${fmt(DAMAGE_BASELINE.guildBossDamage)}% + 포세이돈/펫종합 ${fmt(stats.bossDamageBonus)}% = 보스피해 ${fmt(stats.bossDamageTotal)}%\n(100 + ${fmt(stats.bossDamageTotal)}) / (100 + ${fmt(DAMAGE_BASELINE.externalBossDamage)}) - 1 = ${fmtGain(stats.bossGain)}`
         )
       ].join("");
-      $("effectDescription").textContent = "딜 기대값 모달은 각 효과를 따로 딜 증가율로 환산해서 보여줍니다. 단일/범위/물리/마법 피해는 네 효과를 모두 더한 뒤 4로 나눈 평균값을 사용합니다.";
+      $("effectDescription").textContent = "딜 기대값 모달은 각 효과를 따로 딜 증가율로 환산해서 보여줍니다. 단일/범위/물리/마법 피해는 네 효과를 모두 더한 뒤 4로 나눈 평균값을 사용합니다. 불덩이는 공격력 상위 3명이 주요 딜을 담당한다고 보고 15초/50초의 장기전 평균으로 계산합니다.";
       $("effectExpectedDamage").innerHTML = `
         <div><span>일반 딜 기대값</span><strong>${fmtGain(stats.nonBossExpectedGain)}</strong></div>
         <div><span>최종 딜 기대값</span><strong>${fmtGain(stats.expectedGain)}</strong></div>
@@ -2395,6 +2630,66 @@
       modal.setAttribute("aria-hidden", "true");
     }
 
+    function resultPetCard(pet, level, subtitle) {
+      return `
+        <div class="result-row pet-card" style="--rarity:${pet.color}" data-pet="${pet.name}" data-level="${level}" role="button" tabindex="0">
+          <div class="pet-art"><img src="${petImage(pet.name)}" alt="${pet.name}"></div>
+          <div>
+            <strong>${pet.name}</strong>
+            <span>${subtitle}</span>
+          </div>
+          <div class="level">Lv.${level}</div>
+        </div>
+      `;
+    }
+
+    function buildSupportPets(result) {
+      return [petByName[result.unequippedPet], ...otherPets]
+        .filter(pet => pet.name === result.unequippedPet || result.supportLevels[pet.name] > 1)
+        .sort((a, b) => {
+          const rarityOrder = { immortal: 0, mythic: 1, legendary: 2, hero: 3, rare: 4, normal: 5 };
+          return rarityOrder[a.rarity] - rarityOrder[b.rarity] || result.supportLevels[b.name] - result.supportLevels[a.name];
+        });
+    }
+
+    function renderBuildPlan(build, selectedThirdSlot) {
+      const stats = build.expectedStats || expectedStats(build.coreLevels, build.totalLevel);
+      const isBest = build.thirdSlot === selectedThirdSlot;
+      const equipped = build.equippedPets.map(name => {
+        const pet = petByName[name];
+        const level = build.coreLevels[name];
+        return resultPetCard(pet, level, `${pet.rarityName} · 뼈다귀 ${fmt(cumulativeBoneCost(pet, level))}개`);
+      }).join("");
+      const supportPets = buildSupportPets(build);
+      const support = supportPets.length
+        ? supportPets.map(pet => {
+            const level = build.supportLevels[pet.name];
+            const label = pet.name === build.unequippedPet ? "미장착 · 종합용" : "종합용";
+            return resultPetCard(pet, level, `${pet.rarityName} · ${label}`);
+          }).join("")
+        : `<div class="empty">추가로 올릴 비장착 펫이 없습니다.</div>`;
+      return `
+        <div class="build-plan">
+          <div class="build-plan-head">
+            <div>
+              <div class="build-plan-title">포세이돈 + 파티캣 + ${build.thirdSlot}</div>
+              <div class="build-plan-subtitle">전체 ${fmt(build.budget)}개 · 사용 ${fmt(build.spent)}개 · 남음 ${fmt(build.remaining)}개</div>
+            </div>
+            ${isBest ? `<span class="build-best-badge">최종 추천</span>` : ""}
+          </div>
+          <div class="build-summary">
+            <div><span>일반 기대딜</span><strong>${fmtGain(stats.nonBossExpectedGain)}</strong></div>
+            <div><span>보스 기대딜</span><strong>${fmtGain(stats.expectedGain)}</strong></div>
+            <div><span>펫 종합레벨</span><strong>${fmt(build.totalLevel)}</strong></div>
+          </div>
+          <div class="build-section-label">장착 펫 추천</div>
+          <div class="result-list build-pet-grid">${equipped}</div>
+          <div class="build-section-label">종합레벨용 추천 <span>표시되지 않은 펫은 Lv.1</span></div>
+          <div class="result-list build-support-grid">${support}</div>
+        </div>
+      `;
+    }
+
     function renderResult(result) {
       if (!result) return;
       latestResult = result;
@@ -2410,40 +2705,12 @@
       const targetText = result.targetTotalLevel == null ? "" : `목표 ${fmt(result.targetTotalLevel)} · `;
       $("budgetText").textContent = `${targetText}전체 ${fmt(result.budget)}개 · 사용 ${fmt(result.spent)}개 · 남음 ${fmt(result.remaining)}개`;
 
-      $("coreRecommendations").innerHTML = CORE.map(name => {
-        const pet = petByName[name];
-        const level = result.coreLevels[name];
-        const copies = COPY_CUM[pet.rarity]?.[level] ?? 0;
-        return `
-          <div class="result-row pet-card" style="--rarity:${pet.color}" data-pet="${name}" data-level="${level}" role="button" tabindex="0">
-            <div class="pet-art"><img src="${petImage(name)}" alt="${name}"></div>
-            <div>
-              <strong>${name}</strong>
-              <span>${pet.rarityName} · 뼈다귀 ${fmt(cumulativeBoneCost(pet, level))}개</span>
-            </div>
-            <div class="level">Lv.${level}</div>
-          </div>
-        `;
-      }).join("");
-
-      const supportRaised = otherPets
-        .filter(pet => result.supportLevels[pet.name] > 1)
-        .sort((a, b) => {
-          const rarityOrder = { mythic: 0, legendary: 1, hero: 2, rare: 3, normal: 4 };
-          return rarityOrder[a.rarity] - rarityOrder[b.rarity] || result.supportLevels[b.name] - result.supportLevels[a.name];
-        });
-      $("supportRecommendations").innerHTML = supportRaised.length
-        ? supportRaised.map(pet => `
-          <div class="result-row pet-card" style="--rarity:${pet.color}" data-pet="${pet.name}" data-level="${result.supportLevels[pet.name]}" role="button" tabindex="0">
-            <div class="pet-art"><img src="${petImage(pet.name)}" alt="${pet.name}"></div>
-            <div>
-              <strong>${pet.name}</strong>
-              <span>${pet.rarityName} · 종합용</span>
-            </div>
-            <div class="level">Lv.${result.supportLevels[pet.name]}</div>
-          </div>
-        `).join("")
-        : `<div class="empty">추가로 올릴 비장착 펫이 없습니다.</div>`;
+      const alternatives = result.thirdSlotAlternatives?.length ? result.thirdSlotAlternatives : [result];
+      $("buildComparisons").innerHTML = alternatives
+        .slice()
+        .sort((a, b) => THIRD_SLOT_CANDIDATES.indexOf(a.thirdSlot) - THIRD_SLOT_CANDIDATES.indexOf(b.thirdSlot))
+        .map(build => renderBuildPlan(build, result.thirdSlot))
+        .join("");
 
       latestEffectDetails = buildEffectDetails(result);
       renderEffectList("effects", latestEffectDetails.filter(detail => detail.category === "main"), "딜 기대값에 반영되는 효과가 없습니다.");
@@ -2452,7 +2719,8 @@
     }
 
     function resetInputs() {
-      ["ownedBones", "poseidonCopies", "partycatCopies", "dragoCopies"].forEach(id => $(id).value = 0);
+      $("ownedBones").value = 0;
+      CORE.forEach(name => $(CORE_INPUTS[name].copiesId).value = 0);
       CORE.forEach(name => {
         const input = $(CORE_INPUTS[name].levelId);
         input.value = 1;
