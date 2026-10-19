@@ -1087,18 +1087,18 @@
                 <img src="image/포세이돈.png" alt="포세이돈">
                 <div class="core-pet-name">포세이돈</div>
               </div>
-              <label class="core-level-control"><span>Lv.</span><input id="poseidonLevel" class="level-input" type="number" min="1" max="48" value="1"></label>
-              <div class="core-copy-label">현재 보유 / 다음 필요</div>
-              <div class="core-copy-progress"><input id="poseidonCopies" class="zero-default" type="number" min="0" value="0"><span id="poseidonNeed" class="core-copy-need">/ -</span></div>
+              <label class="core-level-control"><span>Lv.</span><input id="poseidonLevel" class="level-input" type="number" min="0" max="48" value="0"></label>
+              <div id="poseidonCopyLabel" class="core-copy-label">Lv.0 = 미보유</div>
+              <div class="core-copy-progress"><input id="poseidonCopies" class="zero-default" type="number" min="0" value="0" disabled><span id="poseidonNeed" class="core-copy-need">/ -</span></div>
             </div>
             <div class="core-pet-state" style="--rarity:#A63226">
               <div class="core-pet-head">
                 <img src="image/파티캣.png" alt="파티캣">
                 <div class="core-pet-name">파티캣</div>
               </div>
-              <label class="core-level-control"><span>Lv.</span><input id="partycatLevel" class="level-input" type="number" min="1" max="48" value="1"></label>
-              <div class="core-copy-label">현재 보유 / 다음 필요</div>
-              <div class="core-copy-progress"><input id="partycatCopies" class="zero-default" type="number" min="0" value="0"><span id="partycatNeed" class="core-copy-need">/ -</span></div>
+              <label class="core-level-control"><span>Lv.</span><input id="partycatLevel" class="level-input" type="number" min="0" max="48" value="0"></label>
+              <div id="partycatCopyLabel" class="core-copy-label">Lv.0 = 미보유</div>
+              <div class="core-copy-progress"><input id="partycatCopies" class="zero-default" type="number" min="0" value="0" disabled><span id="partycatNeed" class="core-copy-need">/ -</span></div>
             </div>
             <div class="core-pet-state" style="--rarity:#A63226">
               <div class="core-pet-head">
@@ -1340,9 +1340,9 @@
     const THIRD_SLOT_CANDIDATES = ["불덩이", "드라고"];
     const FIREBALL_TIMED_CRIT = "50초마다 공격력이 가장 높은 3명의 영웅에게 15초 동안 치명타 확률";
     const CORE_INPUTS = {
-      "포세이돈": { levelId: "poseidonLevel", copiesId: "poseidonCopies", needId: "poseidonNeed" },
-      "파티캣": { levelId: "partycatLevel", copiesId: "partycatCopies", needId: "partycatNeed" },
-      "불덩이": { levelId: "fireballLevel", copiesId: "fireballCopies", needId: "fireballNeed", labelId: "fireballCopyLabel" },
+      "포세이돈": { levelId: "poseidonLevel", copiesId: "poseidonCopies", needId: "poseidonNeed", labelId: "poseidonCopyLabel", allowUnowned: true },
+      "파티캣": { levelId: "partycatLevel", copiesId: "partycatCopies", needId: "partycatNeed", labelId: "partycatCopyLabel", allowUnowned: true },
+      "불덩이": { levelId: "fireballLevel", copiesId: "fireballCopies", needId: "fireballNeed", labelId: "fireballCopyLabel", allowUnowned: true },
       "드라고": { levelId: "dragoLevel", copiesId: "dragoCopies", needId: "dragoNeed" }
     };
     const pets = RARITIES.flatMap(rarity => rarity.pets.map(name => ({
@@ -1565,9 +1565,9 @@
         otherLevels[input.dataset.pet] = input.value || "";
       });
       return {
-        version: 4,
+        version: 5,
         ownedBones: $("ownedBones").value || "0",
-        coreLevels: Object.fromEntries(CORE.map(name => [name, $(CORE_INPUTS[name].levelId).value || (name === "불덩이" ? "0" : "1")])),
+        coreLevels: Object.fromEntries(CORE.map(name => [name, $(CORE_INPUTS[name].levelId).value || (CORE_INPUTS[name].allowUnowned ? "0" : "1")])),
         copies: Object.fromEntries(CORE.map(name => [name, $(CORE_INPUTS[name].copiesId).value || "0"])),
         otherLevels
       };
@@ -1592,8 +1592,9 @@
       const hasCurrentState = Number(preset.version) >= 2 && preset.coreLevels;
       CORE.forEach(name => {
         const fields = CORE_INPUTS[name];
-        const defaultLevel = name === "불덩이" ? 0 : 1;
-        setLevelInputValue($(fields.levelId), hasCurrentState ? (preset.coreLevels?.[name] ?? defaultLevel) : defaultLevel);
+        const defaultLevel = fields.allowUnowned ? 0 : 1;
+        const legacyLevel = name === "불덩이" ? 0 : 1;
+        setLevelInputValue($(fields.levelId), hasCurrentState ? (preset.coreLevels?.[name] ?? defaultLevel) : legacyLevel);
         $(fields.copiesId).value = preset.copies?.[name] ?? "0";
       });
       document.querySelectorAll(".other-level").forEach(input => {
@@ -1729,7 +1730,7 @@
       const min = levelInput.hasAttribute("min") ? Number(levelInput.min) : 1;
       const numeric = Number(levelInput.value);
       const level = clamp(Number.isFinite(numeric) ? numeric : min, min, Number(levelInput.max) || MAX_LEVEL);
-      const unowned = name === "불덩이" && level === 0;
+      const unowned = fields.allowUnowned && level === 0;
       const copiesInput = $(fields.copiesId);
       copiesInput.disabled = unowned;
       if (unowned) copiesInput.value = 0;
@@ -1753,7 +1754,7 @@
 
     function petAttackValue(name, level) {
       if (level <= 0) return 0;
-      if (name === "드라고") return 5 + (level - 1) * 0.5;
+      if (["드라고", "고래킹"].includes(name)) return 5 + (level - 1) * 0.5;
       if (["포세이돈", "파티캣", "불덩이"].includes(name)) return 10 + (level - 1);
       return 0;
     }
@@ -2010,11 +2011,16 @@
       return Object.entries(currentCoreLevels).reduce((sum, [name, level]) => sum + cumulativeBoneCost(petByName[name], level), 0);
     }
 
-    function buildSupportPrefix(limitedSupport = null) {
-      const supportPets = limitedSupport ? [...otherPets, petByName[limitedSupport.name]] : [...otherPets];
+    function buildSupportPrefix(limitedSupports = [], equippedSupportPets = []) {
+      const limitByName = new Map(limitedSupports.map(item => [item.name, item.maxLevel]));
+      const equippedSupportSet = new Set(equippedSupportPets);
+      const supportPets = [
+        ...otherPets.filter(pet => !equippedSupportSet.has(pet.name)),
+        ...limitedSupports.map(item => petByName[item.name])
+      ];
       const increments = [];
       supportPets.forEach(pet => {
-        const maxLevel = limitedSupport?.name === pet.name ? limitedSupport.maxLevel : MAX_LEVEL;
+        const maxLevel = limitByName.get(pet.name) ?? MAX_LEVEL;
         for (let target = 2; target <= maxLevel; target++) increments.push({ pet: pet.name, cost: levelUpCost(pet, target) });
       });
       increments.sort((a, b) => a.cost - b.cost || petByName[a.pet].multi - petByName[b.pet].multi);
@@ -2077,6 +2083,10 @@
       const spent = result.spent + support.cost - currentSupport.cost;
       const totalLevel = baseTotalLevel + nextSupportCount;
       const stats = expectedStats(result.coreLevels, totalLevel);
+      const mainLevels = { ...result.mainLevels };
+      result.unequippedPets.forEach(name => {
+        mainLevels[name] = support.levels[name];
+      });
       return {
         ...result,
         totalAttack: stats.attackBonus,
@@ -2089,9 +2099,7 @@
         spent,
         remaining: result.budget - spent,
         supportLevels: support.levels,
-        mainLevels: result.unequippedPet
-          ? { ...result.mainLevels, [result.unequippedPet]: support.levels[result.unequippedPet] }
-          : { ...result.mainLevels },
+        mainLevels,
         leftoverRewardApplied: true
       };
     }
@@ -2107,85 +2115,114 @@
         (tiedExpected && candidate.spent === best.spent && candidate.totalLevel === best.totalLevel && candidate.totalAttack > best.totalAttack);
     }
 
-    function optimizeThirdSlot(thirdSlot, input, budget, refundInfo, targetTotalLevel) {
-      if (input.currentCoreLevels[thirdSlot] <= 0) return null;
-      const unequippedPet = THIRD_SLOT_CANDIDATES.find(name => name !== thirdSlot && input.currentCoreLevels[name] > 0) || null;
-      const maxLevels = Object.fromEntries(CORE.map(name => [
+    function equippedConfigurations(input) {
+      const owned = CORE.filter(name => input.currentCoreLevels[name] > 0);
+      if (!owned.length) return [];
+      const fixedOwned = FIXED_EQUIPPED.every(name => owned.includes(name));
+      if (fixedOwned) {
+        const thirdSlots = THIRD_SLOT_CANDIDATES.filter(name => owned.includes(name));
+        return thirdSlots.length
+          ? thirdSlots.map(name => [...FIXED_EQUIPPED, name])
+          : [[...FIXED_EQUIPPED]];
+      }
+      const equipped = owned.slice(0, 3);
+      const ownedImmortals = equipped.filter(name => petByName[name].rarity === "immortal");
+      if (equipped.length === 2 && ownedImmortals.length === 1 && equipped.includes("드라고")) {
+        equipped.push("고래킹");
+      }
+      return [equipped];
+    }
+
+    function optimizeEquippedSet(equippedPets, input, budget, refundInfo, targetTotalLevel) {
+      if (!equippedPets.length) return null;
+      const ownedCore = CORE.filter(name => input.currentCoreLevels[name] > 0);
+      const unequippedPets = ownedCore.filter(name => !equippedPets.includes(name));
+      const maxLevels = Object.fromEntries([...new Set([...CORE, ...equippedPets])].map(name => [
         name,
-        input.currentCoreLevels[name] > 0 ? maxLevelByCopies(petByName[name].rarity, input.copies[name]) : 0
+        CORE.includes(name)
+          ? (input.currentCoreLevels[name] > 0 ? maxLevelByCopies(petByName[name].rarity, input.copies[name]) : 0)
+          : MAX_LEVEL
       ]));
-      const supportPrefix = buildSupportPrefix(unequippedPet ? { name: unequippedPet, maxLevel: maxLevels[unequippedPet] } : null);
+      const limitedSupports = unequippedPets.map(name => ({ name, maxLevel: maxLevels[name] }));
+      const equippedSupportPets = equippedPets.filter(name => !CORE.includes(name));
+      const supportPrefix = buildSupportPrefix(limitedSupports, equippedSupportPets);
       const supportPetCount = Object.keys(supportPrefix[0].levels).length;
       let best = null;
+      const emptyCombat = { attack: 0, critChance: 0, timedCrit: 0, critDamage: 0, partyFinal: 0, bossDamage: 0 };
 
-      for (let p = 1; p <= maxLevels["포세이돈"]; p++) {
-        const pCost = cumulativeBoneCost(petByName["포세이돈"], p);
-        if (pCost > budget) break;
-        const pCombat = petCombatValues("포세이돈", p);
-        for (let c = 1; c <= maxLevels["파티캣"]; c++) {
-          const pcCost = pCost + cumulativeBoneCost(petByName["파티캣"], c);
-          if (pcCost > budget) break;
-          const pcCombat = combineCombat(pCombat, petCombatValues("파티캣", c));
-          for (let t = 1; t <= maxLevels[thirdSlot]; t++) {
-            const coreCost = pcCost + cumulativeBoneCost(petByName[thirdSlot], t);
-            if (coreCost > budget) break;
-            const coreLevels = { "포세이돈": p, "파티캣": c, [thirdSlot]: t };
-            const coreCombat = combineCombat(pcCombat, petCombatValues(thirdSlot, t));
-            const baseTotalLevel = p + c + t + supportPetCount;
-            const remaining = budget - coreCost;
-            const supportCounts = targetTotalLevel == null ? new Set([0]) : new Set([targetTotalLevel - baseTotalLevel]);
-            if (targetTotalLevel == null) {
-              TOTAL_REWARDS
-                .filter(([, name]) => EXPECTED_REWARD_EFFECTS.has(name))
-                .forEach(([level]) => supportCounts.add(Math.max(0, level - baseTotalLevel)));
-            }
+      function evaluate(coreLevels, coreCombat, coreCost, coreLevelTotal) {
+        const baseTotalLevel = coreLevelTotal + supportPetCount;
+        const remaining = budget - coreCost;
+        const supportCounts = targetTotalLevel == null ? new Set([0]) : new Set([targetTotalLevel - baseTotalLevel]);
+        if (targetTotalLevel == null) {
+          TOTAL_REWARDS
+            .filter(([, name]) => EXPECTED_REWARD_EFFECTS.has(name))
+            .forEach(([level]) => supportCounts.add(Math.max(0, level - baseTotalLevel)));
+        }
 
-            supportCounts.forEach(count => {
-              if (count < 0 || count >= supportPrefix.length) return;
-              const support = supportPrefix[count];
-              if (support.cost > remaining) return;
-              const totalLevel = baseTotalLevel + count;
-              const spent = coreCost + support.cost;
-              const score = expectedScoreFromCombat(coreCombat, totalLevel);
-              const lightCandidate = {
-                expectedMultiplier: score.expectedMultiplier,
-                totalAttack: score.attackBonus,
-                totalLevel,
-                spent
-              };
-              if (!isBetterCandidate(lightCandidate, best)) return;
-              const stats = expectedStats(coreLevels, totalLevel);
-              const mainLevels = {
-                "포세이돈": p,
-                "파티캣": c,
-                [thirdSlot]: t
-              };
-              if (unequippedPet) mainLevels[unequippedPet] = support.levels[unequippedPet];
-              const candidate = {
-                totalAttack: stats.attackBonus,
-                coreAttack: stats.coreAttack,
-                rewardAttack: stats.rewardAttack,
-                expectedMultiplier: stats.expectedMultiplier,
-                expectedGain: stats.expectedGain,
-                expectedStats: stats,
-                totalLevel,
-                spent,
-                remaining: budget - spent,
-                ...refundInfo,
-                budget,
-                targetTotalLevel,
-                coreLevels,
-                mainLevels,
-                equippedPets: [...FIXED_EQUIPPED, thirdSlot],
-                thirdSlot,
-                unequippedPet,
-                supportLevels: support.levels
-              };
-              best = candidate;
-            });
-          }
+        supportCounts.forEach(count => {
+          if (count < 0 || count >= supportPrefix.length) return;
+          const support = supportPrefix[count];
+          if (support.cost > remaining) return;
+          const totalLevel = baseTotalLevel + count;
+          const spent = coreCost + support.cost;
+          const score = expectedScoreFromCombat(coreCombat, totalLevel);
+          const lightCandidate = {
+            expectedMultiplier: score.expectedMultiplier,
+            totalAttack: score.attackBonus,
+            totalLevel,
+            spent
+          };
+          if (!isBetterCandidate(lightCandidate, best)) return;
+          const stats = expectedStats(coreLevels, totalLevel);
+          const mainLevels = { ...coreLevels };
+          unequippedPets.forEach(name => {
+            mainLevels[name] = support.levels[name];
+          });
+          best = {
+            totalAttack: stats.attackBonus,
+            coreAttack: stats.coreAttack,
+            rewardAttack: stats.rewardAttack,
+            expectedMultiplier: stats.expectedMultiplier,
+            expectedGain: stats.expectedGain,
+            expectedStats: stats,
+            totalLevel,
+            spent,
+            remaining: budget - spent,
+            ...refundInfo,
+            budget,
+            targetTotalLevel,
+            coreLevels: { ...coreLevels },
+            mainLevels,
+            equippedPets: [...equippedPets],
+            unequippedPets: [...unequippedPets],
+            supportLevels: support.levels,
+            buildKey: equippedPets.join("|")
+          };
+        });
+      }
+
+      function visit(index, coreLevels, coreCombat, coreCost, coreLevelTotal) {
+        if (index >= equippedPets.length) {
+          evaluate(coreLevels, coreCombat, coreCost, coreLevelTotal);
+          return;
+        }
+        const name = equippedPets[index];
+        const pet = petByName[name];
+        for (let level = 1; level <= maxLevels[name]; level++) {
+          const cost = coreCost + cumulativeBoneCost(pet, level);
+          if (cost > budget) break;
+          visit(
+            index + 1,
+            { ...coreLevels, [name]: level },
+            combineCombat(coreCombat, petCombatValues(name, level)),
+            cost,
+            coreLevelTotal + level
+          );
         }
       }
+
+      visit(0, {}, emptyCombat, 0, 0);
       return applyLeftoverRewardLevels(best, supportPrefix);
     }
 
@@ -2197,12 +2234,12 @@
       const budget = input.ownedBones + refund;
       const targetTotalLevel = Number.isFinite(options.targetTotalLevel) ? Math.round(options.targetTotalLevel) : null;
       const refundInfo = { refund, otherRefund, coreRefund };
-      const alternatives = THIRD_SLOT_CANDIDATES
-        .map(name => optimizeThirdSlot(name, input, budget, refundInfo, targetTotalLevel))
+      const alternatives = equippedConfigurations(input)
+        .map(configuration => optimizeEquippedSet(configuration, input, budget, refundInfo, targetTotalLevel))
         .filter(Boolean);
       const best = alternatives.reduce((current, candidate) => isBetterCandidate(candidate, current) ? candidate : current, null);
       if (!best) return null;
-      best.thirdSlotAlternatives = alternatives.map(alternative => ({ ...alternative }));
+      best.buildAlternatives = alternatives.map(alternative => ({ ...alternative }));
       return best;
     }
 
@@ -2391,7 +2428,8 @@
     }
 
     function levelAttackEffect(name, level) {
-      return CORE.includes(name) ? petAttackValue(name, level) : null;
+      const attack = petAttackValue(name, level);
+      return attack > 0 ? attack : null;
     }
 
     function petEffects(name, level) {
@@ -2662,18 +2700,18 @@
     }
 
     function buildSupportPets(result) {
-      const optionalPet = result.unequippedPet ? [petByName[result.unequippedPet]] : [];
-      return [...optionalPet, ...otherPets]
-        .filter(pet => pet.name === result.unequippedPet || result.supportLevels[pet.name] > 1)
+      const optionalPets = result.unequippedPets.map(name => petByName[name]);
+      return [...optionalPets, ...otherPets]
+        .filter(pet => result.unequippedPets.includes(pet.name) || result.supportLevels[pet.name] > 1)
         .sort((a, b) => {
           const rarityOrder = { immortal: 0, mythic: 1, legendary: 2, hero: 3, rare: 4, normal: 5 };
           return rarityOrder[a.rarity] - rarityOrder[b.rarity] || result.supportLevels[b.name] - result.supportLevels[a.name];
         });
     }
 
-    function renderBuildPlan(build, selectedThirdSlot) {
+    function renderBuildPlan(build, selectedBuildKey) {
       const stats = build.expectedStats || expectedStats(build.coreLevels, build.totalLevel);
-      const isBest = build.thirdSlot === selectedThirdSlot;
+      const isBest = build.buildKey === selectedBuildKey;
       const equipped = build.equippedPets.map(name => {
         const pet = petByName[name];
         const level = build.coreLevels[name];
@@ -2683,7 +2721,7 @@
       const support = supportPets.length
         ? supportPets.map(pet => {
             const level = build.supportLevels[pet.name];
-            const label = pet.name === build.unequippedPet ? "미장착 · 종합용" : "종합용";
+            const label = build.unequippedPets.includes(pet.name) ? "미장착 · 종합용" : "종합용";
             return resultPetCard(pet, level, `${pet.rarityName} · ${label}`);
           }).join("")
         : `<div class="empty">추가로 올릴 비장착 펫이 없습니다.</div>`;
@@ -2691,7 +2729,7 @@
         <div class="build-plan">
           <div class="build-plan-head">
             <div>
-              <div class="build-plan-title">포세이돈 + 파티캣 + ${build.thirdSlot}</div>
+              <div class="build-plan-title">${build.equippedPets.join(" + ")}</div>
               <div class="build-plan-subtitle">전체 ${fmt(build.budget)}개 · 사용 ${fmt(build.spent)}개 · 남음 ${fmt(build.remaining)}개</div>
             </div>
             ${isBest ? `<span class="build-best-badge">최종 추천</span>` : ""}
@@ -2724,11 +2762,9 @@
       const targetText = result.targetTotalLevel == null ? "" : `목표 ${fmt(result.targetTotalLevel)} · `;
       $("budgetText").textContent = `${targetText}전체 ${fmt(result.budget)}개 · 사용 ${fmt(result.spent)}개 · 남음 ${fmt(result.remaining)}개`;
 
-      const alternatives = result.thirdSlotAlternatives?.length ? result.thirdSlotAlternatives : [result];
+      const alternatives = result.buildAlternatives?.length ? result.buildAlternatives : [result];
       $("buildComparisons").innerHTML = alternatives
-        .slice()
-        .sort((a, b) => THIRD_SLOT_CANDIDATES.indexOf(a.thirdSlot) - THIRD_SLOT_CANDIDATES.indexOf(b.thirdSlot))
-        .map(build => renderBuildPlan(build, result.thirdSlot))
+        .map(build => renderBuildPlan(build, result.buildKey))
         .join("");
 
       latestEffectDetails = buildEffectDetails(result);
@@ -2742,7 +2778,7 @@
       CORE.forEach(name => $(CORE_INPUTS[name].copiesId).value = 0);
       CORE.forEach(name => {
         const input = $(CORE_INPUTS[name].levelId);
-        const level = name === "불덩이" ? 0 : 1;
+        const level = CORE_INPUTS[name].allowUnowned ? 0 : 1;
         input.value = level;
         input.dataset.lastValid = String(level);
       });
